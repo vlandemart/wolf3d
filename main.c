@@ -1,3 +1,4 @@
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -17,7 +18,6 @@ void	init_map(t_wf *wf)
 	int i;
 	int j;
 
-	wf->map_size = 10;
 	wf->map = (int**)malloc(sizeof(int*) * wf->map_size);
 	i = 0;
 	while (i < wf->map_size)
@@ -46,8 +46,8 @@ void	init_player(t_wf *wf)
 	wf->pl->posy = 127;
 	wf->pl->angle = 45;
 	wf->pl->fov = 60;
-	wf->pl->turn = 5;
-	wf->pl->speed = 5;
+	wf->pl->turn = 1;
+	wf->pl->speed = 1;
 	wf->lov = 4 * 64;
 	wf->dist = ((double)wf->width / 2.0) / tan(degtorad(wf->pl->fov) / 2.0);
 	wf->angw = wf->pl->fov / wf->width;
@@ -56,7 +56,7 @@ void	init_player(t_wf *wf)
 void     update(t_wf *wf, int flag)
 {
     if (flag)
-        memset(wf->sdl->pix, 255, wf->width * wf->height * sizeof(Uint32));
+        memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
     SDL_UpdateTexture(wf->sdl->txt, NULL, wf->sdl->pix, wf->width * sizeof(Uint32));
 	SDL_RenderClear(wf->sdl->ren);
 	SDL_RenderCopy(wf->sdl->ren, wf->sdl->txt, NULL, NULL);
@@ -186,14 +186,16 @@ void	fill_col(t_wf *wf, int i, double dist)
 	int j;
 	int	height;
 	int	tmp;
+	double col;
 
-	height = SQLEN * wf->dist / dist;
+	col = wf->lov / dist;
+	height = SQLEN * wf->dist / dist / 3;
 	tmp = (wf->height - height) / 2;
 	j = 0;
 	while (j < wf->height)
 	{
 		if (j > tmp && j < tmp + height)
-			wf->sdl->pix[i + wf->width * j] = 255;
+			wf->sdl->pix[i + wf->width * j] = 0xffffff / col;
 		j++;
 	}
 }
@@ -210,21 +212,23 @@ void	test(t_wf *wf)
     double xmove;
     double ymove;
     double dist;
+    double tmp;
 
     omega = wf->pl->angle + wf->pl->fov / 2;
     if (omega >= 360)
         omega -= 360;
     i = 0;
+    tmp = pow(wf->lov, 2);
     while (i < wf->width)
 	{
 	    check = 0;
         x = wf->pl->posx;
         y = wf->pl->posy;
-        xmove = cos(degtorad(omega)) * 0.05;
-        ymove = -sin(degtorad(omega)) * 0.05;
+        xmove = cos(degtorad(omega));
+        ymove = -sin(degtorad(omega));
         distx = 0.0;
         disty = 0.0;
-        while (x >= 0 && y >= 0 && x < wf->map_size * 64 && y < wf->map_size * 64)
+        while (x >= 0 && y >= 0 && x < wf->map_size * 64 && y < wf->map_size * 64 && pow(distx, 2) + pow(disty, 2) < tmp)
         {
             if (wf->map[(int)(x / 64)][(int)(y / 64)])
             {
@@ -257,7 +261,6 @@ void	test(t_wf *wf)
 	double	movex;
 	double	distx;
 	double	disty;
-
 	i = 0;
 	omega = wf->pl->angle + wf->pl->fov / 2;
 	if (omega >= 360)
@@ -280,12 +283,9 @@ void	test(t_wf *wf)
 		else
 			y = floor(wf->pl->posy / 64) * 64 - 1;
 		x = wf->pl->posx + (wf->pl->posy - y) / tan(degtorad(omega));
-		movex = 64 / tan		if (map_size.y == 2)
-			exit(0);torad(omega));
-		while (!check &&		if (map_size.y == 2)
-			exit(0);
-				x > 0 &&		if (map_size.y == 2)
-			exit(0);
+		movex = 64 / tan(degtorad(omega));
+		while (!check &&
+				x > 0 &&
 				y > 0 &&
 				pow(x - wf->pl->posx, 2) + pow(y - wf->pl->posy, 2) <
 				pow(wf->lov, 2) &&
@@ -371,6 +371,53 @@ void	prepare_window(t_wf *wf)
 	update(wf, 1);
 }
 
+void movement(t_wf *wf)
+{
+    int i;
+    int j;
+    double x;
+    double y;
+
+    if (wf->down)
+        {
+            x = wf->pl->posx;
+            y = wf->pl->posy;
+            x -= cos(degtorad(wf->pl->angle)) * wf->pl->speed;
+            if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+                x = wf->pl->posx;
+            y += sin(degtorad(wf->pl->angle)) * wf->pl->speed;
+            if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+                y = wf->pl->posy;
+            wf->pl->posx = x;
+            wf->pl->posy = y;
+        }
+        if (wf->up)
+        {
+            x = wf->pl->posx;
+            y = wf->pl->posy;
+            x += cos(degtorad(wf->pl->angle)) * wf->pl->speed;
+            if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+                x = wf->pl->posx;
+            y -= sin(degtorad(wf->pl->angle)) * wf->pl->speed;
+            if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+                y = wf->pl->posy;
+            wf->pl->posx = x;
+            wf->pl->posy = y;
+        }
+        if (wf->right)
+        {
+            wf->pl->angle -= wf->pl->turn;
+            if (wf->pl->angle < 0)
+                wf->pl->angle += 360;
+        }
+        if (wf->left)
+        {
+            wf->pl->angle += wf->pl->turn;
+            if (wf->pl->angle >= 360)
+                wf->pl->angle -= 360;
+        }
+}
+
 int main(int ac, char **av)
 {
 	t_wf		*wf;
@@ -384,13 +431,17 @@ int main(int ac, char **av)
 	wf->up = 0;
 	wf->down = 0;
 
-	if (ac == 2)
+	if (ac == 2 && read_map(wf, av[1]) != 1)
 	{
-		if (read_map(wf, av[1]) != 1)
-			return (0);
+		printf("Error reading map!\n");
+		return (-1);
 	}
 	else
+	{
+		printf("No map passed, initing empty room.\n");
+		wf->map_size = 10;
 		init_map(wf);
+	}
 	init_player(wf);
 
 	wf->sdl = (t_sdl*)malloc(sizeof(t_sdl));
@@ -402,29 +453,8 @@ int main(int ac, char **av)
 	{
 	    if (wf->down || wf->up || wf->right || wf->left)
         {
-            memset(wf->sdl->pix, 255, wf->width * wf->height * sizeof(Uint32));
-            if (wf->down)
-            {
-                wf->pl->posx -= cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-                wf->pl->posy += sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-            }
-            if (wf->up)
-            {
-                wf->pl->posx += cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-                wf->pl->posy -= sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-            }
-            if (wf->right)
-            {
-                wf->pl->angle -= wf->pl->turn;
-                if (wf->pl->angle < 0)
-                    wf->pl->angle += 360;
-            }
-            if (wf->left)
-            {
-                wf->pl->angle += wf->pl->turn;
-                if (wf->pl->angle >= 360)
-                    wf->pl->angle -= 360;
-            }
+            memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
+            movement(wf);
             test(wf);
         }
 		while (SDL_PollEvent(&evt))
