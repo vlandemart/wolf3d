@@ -33,18 +33,33 @@ void	init_map(t_wf *wf)
 		}
 		i++;
 	}
+	wf->map[3][4] = 1;
+	wf->map[3][5] = 1;
+	wf->map[4][4] = 1;
 }
 
 void	init_player(t_wf *wf)
 {
 	wf->pl = (t_pl*)malloc(sizeof(t_pl));
-	wf->pl->posx = 340;
-	wf->pl->posy = 340;
+	wf->pl->posx = 127;
+	wf->pl->posy = 127;
 	wf->pl->angle = 45;
 	wf->pl->fov = 60;
-	wf->lov = 100 * 64;
+	wf->pl->turn = 5;
+	wf->pl->speed = 5;
+	wf->lov = 4 * 64;
 	wf->dist = ((double)wf->width / 2.0) / tan(degtorad(wf->pl->fov) / 2.0);
 	wf->angw = wf->pl->fov / wf->width;
+}
+
+void     update(t_wf *wf, int flag)
+{
+    if (flag)
+        memset(wf->sdl->pix, 255, wf->width * wf->height * sizeof(Uint32));
+    SDL_UpdateTexture(wf->sdl->txt, NULL, wf->sdl->pix, wf->width * sizeof(Uint32));
+	SDL_RenderClear(wf->sdl->ren);
+	SDL_RenderCopy(wf->sdl->ren, wf->sdl->txt, NULL, NULL);
+	SDL_RenderPresent(wf->sdl->ren);
 }
 
 int		close_app(t_wf *wf)
@@ -57,23 +72,6 @@ int		close_app(t_wf *wf)
 double	degtorad(double deg)
 {
 	return (deg * (M_PI / 180));
-}
-
-void	fill_col(t_wf *wf, int i, double dist)
-{
-	int j;
-	int	height;
-	int	tmp;
-
-	height = SQLEN * wf->dist / dist;
-	tmp = (wf->height - height) / 2;
-	j = 0;
-	while (j < wf->height)
-	{
-		if (j > tmp && j < tmp + height)
-			wf->sdl->pix[i + wf->width * j] = 255;
-		j++;
-	}
 }
 
 double	check_y(t_wf *wf, double omega)
@@ -182,8 +180,77 @@ double  check_x(t_wf *wf, double omega)
     return (dist);
 }
 
+void	fill_col(t_wf *wf, int i, double dist)
+{
+	int j;
+	int	height;
+	int	tmp;
+
+	height = SQLEN * wf->dist / dist;
+	tmp = (wf->height - height) / 2;
+	j = 0;
+	while (j < wf->height)
+	{
+		if (j > tmp && j < tmp + height)
+			wf->sdl->pix[i + wf->width * j] = 255;
+		j++;
+	}
+}
+
 void	test(t_wf *wf)
 {
+    int i;
+    int check;
+    double x;
+    double y;
+    double distx;
+    double disty;
+    double omega;
+    double xmove;
+    double ymove;
+    double dist;
+
+    omega = wf->pl->angle + wf->pl->fov / 2;
+    if (omega >= 360)
+        omega -= 360;
+    i = 0;
+    while (i < wf->width)
+	{
+	    check = 0;
+        x = wf->pl->posx;
+        y = wf->pl->posy;
+        xmove = cos(degtorad(omega)) * 0.05;
+        ymove = -sin(degtorad(omega)) * 0.05;
+        distx = 0.0;
+        disty = 0.0;
+        while (x >= 0 && y >= 0 && x < MAPL * 64 && y < MAPL * 64)
+        {
+            if (wf->map[(int)(x / 64)][(int)(y / 64)])
+            {
+                check = 1;
+                break ;
+            }
+            x += xmove;
+            y += ymove;
+            distx += xmove;
+            disty += ymove;
+        }
+        if (distx < 0)
+            distx = -distx;
+        if (disty < 0)
+            disty = -disty;
+        dist = sqrt(pow(distx, 2) + pow(disty, 2));
+        dist *= cos(degtorad(omega - wf->pl->angle));
+        if (dist < 0)
+            dist = -dist;
+        if (check)
+            fill_col(wf, i, dist);
+	    omega -= wf->angw;
+	    if (omega < 0)
+            omega += 360;
+		i++;
+	}
+    /*
 	double	omega;
 	int		i;
 	double	movex;
@@ -204,6 +271,7 @@ void	test(t_wf *wf)
             omega += 360;
         i++;
 	}
+    */
 	    /*
 		check = 0;
 		if ((omega > 180 || omega < 0) && omega < 360)
@@ -284,10 +352,7 @@ void	test(t_wf *wf)
 	}
 	*/
 
-	SDL_UpdateTexture(wf->sdl->txt, NULL, wf->sdl->pix, wf->width * sizeof(Uint32));
-	SDL_RenderClear(wf->sdl->ren);
-	SDL_RenderCopy(wf->sdl->ren, wf->sdl->txt, NULL, NULL);
-	SDL_RenderPresent(wf->sdl->ren);
+	update(wf, 0);
 }
 
 void	prepare_window(t_wf *wf)
@@ -299,11 +364,7 @@ void	prepare_window(t_wf *wf)
 	wf->sdl->txt = SDL_CreateTexture(wf->sdl->ren,
 			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, wf->width, wf->height);
 	wf->sdl->pix = (Uint32*)malloc(sizeof(Uint32) * (wf->width * wf->height));
-	memset(wf->sdl->pix, 255, wf->width * wf->height * sizeof(Uint32));
-	SDL_UpdateTexture(wf->sdl->txt, NULL, wf->sdl->pix, wf->width * sizeof(Uint32));
-	SDL_RenderClear(wf->sdl->ren);
-	SDL_RenderCopy(wf->sdl->ren, wf->sdl->txt, NULL, NULL);
-	SDL_RenderPresent(wf->sdl->ren);
+	update(wf, 1);
 }
 
 int main(int ac, char **av)
@@ -314,6 +375,10 @@ int main(int ac, char **av)
 	wf = (t_wf*)malloc(sizeof(t_wf));
 	wf->width = 1024;
 	wf->height = 768;
+	wf->left = 0;
+	wf->right = 0;
+	wf->up = 0;
+	wf->down = 0;
 
 	init_map(wf);
 	init_player(wf);
@@ -325,50 +390,61 @@ int main(int ac, char **av)
 
 	while (1)
 	{
+	    if (wf->down || wf->up || wf->right || wf->left)
+        {
+            memset(wf->sdl->pix, 255, wf->width * wf->height * sizeof(Uint32));
+            if (wf->down)
+            {
+                wf->pl->posx -= cos(degtorad(wf->pl->angle)) * wf->pl->speed;
+                wf->pl->posy += sin(degtorad(wf->pl->angle)) * wf->pl->speed;
+            }
+            if (wf->up)
+            {
+                wf->pl->posx += cos(degtorad(wf->pl->angle)) * wf->pl->speed;
+                wf->pl->posy -= sin(degtorad(wf->pl->angle)) * wf->pl->speed;
+            }
+            if (wf->right)
+            {
+                wf->pl->angle -= wf->pl->turn;
+                if (wf->pl->angle < 0)
+                    wf->pl->angle += 360;
+            }
+            if (wf->left)
+            {
+                wf->pl->angle += wf->pl->turn;
+                if (wf->pl->angle >= 360)
+                    wf->pl->angle -= 360;
+            }
+            test(wf);
+        }
 		while (SDL_PollEvent(&evt))
 		{
 			if ((SDL_QUIT == evt.type) ||
 					(SDL_KEYDOWN == evt.type &&
 					 SDL_SCANCODE_ESCAPE == evt.key.keysym.scancode))
 				return (close_app(wf));
-			if (SDL_KEYDOWN == evt.type &&
-					SDLK_LEFT == evt.key.keysym.sym)
-			{
-				memset(wf->sdl->pix, 255, wf->width * wf->height * sizeof(Uint32));
-				wf->pl->angle += 2;
-				if (wf->pl->angle >= 360)
-					wf->pl->angle -= 360;
-				test(wf);
-				printf("ANGLE IS %f, OMEGA IS [%f - %f]\n", wf->pl->angle, wf->pl->angle + wf->pl->fov / 2, wf->pl->angle - wf->pl->fov / 2);
-			}
-			if (SDL_KEYDOWN == evt.type &&
-					SDLK_RIGHT == evt.key.keysym.sym)
-			{
-				wf->pl->angle -= 2;
-				if (wf->pl->angle <= 0)
-					wf->pl->angle += 360;
-				memset(wf->sdl->pix, 255, wf->width * wf->height * sizeof(Uint32));
-				test(wf);
-				printf("ANGLE IS %f, OMEGA IS [%f - %f]\n", wf->pl->angle, wf->pl->angle + wf->pl->fov / 2, wf->pl->angle - wf->pl->fov / 2);
-			}
-			if (SDL_KEYDOWN == evt.type &&
-					SDLK_UP == evt.key.keysym.sym)
-			{
-				memset(wf->sdl->pix, 255, wf->width * wf->height * sizeof(Uint32));
-				wf->pl->posx += cos(degtorad(wf->pl->angle)) * 3;
-				wf->pl->posy -= sin(degtorad(wf->pl->angle)) * 3;
-				test(wf);
-				printf("NEW POSX %f NEW POSY %f\n", wf->pl->posx, wf->pl->posy);
-			}
-			if (SDL_KEYDOWN == evt.type &&
-					SDLK_DOWN == evt.key.keysym.sym)
-			{
-				memset(wf->sdl->pix, 255, wf->width * wf->height * sizeof(Uint32));
-				wf->pl->posx -= cos(degtorad(wf->pl->angle)) * 3;
-				wf->pl->posy += sin(degtorad(wf->pl->angle)) * 3;
-				test(wf);
-				printf("NEW POSX %f NEW POSY %f\n", wf->pl->posx, wf->pl->posy);
-			}
+			if (SDL_KEYDOWN == evt.type)
+            {
+                if (SDLK_LEFT == evt.key.keysym.sym)
+                    wf->left = 1;
+                if (SDLK_RIGHT == evt.key.keysym.sym)
+                    wf->right = 1;
+                if (SDLK_UP == evt.key.keysym.sym)
+                    wf->up = 1;
+                if (SDLK_DOWN == evt.key.keysym.sym)
+                    wf->down = 1;
+            }
+            if (SDL_KEYUP == evt.type)
+            {
+                if (SDLK_LEFT == evt.key.keysym.sym)
+                    wf->left = 0;
+                if (SDLK_RIGHT == evt.key.keysym.sym)
+                    wf->right = 0;
+                if (SDLK_UP == evt.key.keysym.sym)
+                    wf->up = 0;
+                if (SDLK_DOWN == evt.key.keysym.sym)
+                    wf->down = 0;
+            }
 		}
 	}
 	return (0);

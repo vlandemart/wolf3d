@@ -26,6 +26,8 @@ typedef struct	s_pl
 	double	posy;
 	double	angle;
 	double	fov;
+	int     speed;
+	int     turn;
 }				t_pl;
 typedef struct	s_sdl
 {
@@ -46,6 +48,10 @@ typedef struct	s_wf
 	int		dist;
 	int		lov;
 	double	angw;
+	int     left;
+	int     right;
+	int     up;
+	int     down;
 }				t_wf;
 double			degtorad(double deg);
 #endif
