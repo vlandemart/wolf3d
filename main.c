@@ -181,21 +181,19 @@ double  check_x(t_wf *wf, double omega)
     return (dist);
 }
 
-void	fill_col(t_wf *wf, int i, double dist)
+void	fill_col(t_wf *wf, int i, double dist, int col)
 {
 	int j;
 	int	height;
 	int	tmp;
-	double col;
 
-	col = wf->lov / dist;
 	height = SQLEN * wf->dist / dist / 3;
 	tmp = (wf->height - height) / 2;
 	j = 0;
 	while (j < wf->height)
 	{
 		if (j > tmp && j < tmp + height)
-			wf->sdl->pix[i + wf->width * j] = 0xffffff / col;
+			wf->sdl->pix[i + wf->width * j] = col;
 		j++;
 	}
 }
@@ -213,15 +211,16 @@ void	test(t_wf *wf)
     double ymove;
     double dist;
     double tmp;
+    int col;
 
     omega = wf->pl->angle + wf->pl->fov / 2;
     if (omega >= 360)
         omega -= 360;
     i = 0;
     tmp = pow(wf->lov, 2);
+    col = 0;
     while (i < wf->width)
 	{
-	    check = 0;
         x = wf->pl->posx;
         y = wf->pl->posy;
         xmove = cos(degtorad(omega));
@@ -232,7 +231,14 @@ void	test(t_wf *wf)
         {
             if (wf->map[(int)(x / 64)][(int)(y / 64)])
             {
-                check = 1;
+                if ((int)(x - xmove) / 64 > (int)x / 64)
+                    col = 0x0000ff;
+                else if ((int)(x - xmove) / 64 < (int)x / 64)
+                    col = 0x00ff00;
+                else if ((int)(y - ymove) / 64 > (int)y / 64)
+                    col = 0x00ffff;
+                else
+                    col = 0xff0000;
                 break ;
             }
             x += xmove;
@@ -248,8 +254,7 @@ void	test(t_wf *wf)
         dist *= cos(degtorad(omega - wf->pl->angle));
         if (dist < 0)
             dist = -dist;
-        if (check)
-            fill_col(wf, i, dist);
+        fill_col(wf, i, dist, col);
 	    omega -= wf->angw;
 	    if (omega < 0)
             omega += 360;
