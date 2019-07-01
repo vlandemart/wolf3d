@@ -3,53 +3,39 @@
 /*                                                        :::      ::::::::   */
 /*   ft_lstnew.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/22 00:48:06 by ydavis            #+#    #+#             */
-/*   Updated: 2018/11/30 21:11:42 by ydavis           ###   ########.fr       */
+/*   Created: 2018/12/05 20:53:40 by njacobso          #+#    #+#             */
+/*   Updated: 2018/12/05 20:54:51 by njacobso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+#include <stdlib.h>
 
-static void		*ft_voidcpy(void const *content, size_t size)
+t_list	*ft_lstnew(void const *content, size_t content_size)
 {
-	void	*new;
-	size_t	i;
+	t_list *tmp;
 
-	if (!(new = malloc(sizeof(void) * size)))
-		return (NULL);
-	i = 0;
-	while (i < size)
-	{
-		*(unsigned char*)(new + i) = *(unsigned char*)(content + i);
-		i++;
-	}
-	return (new);
-}
-
-static t_list	*ft_memfree(t_list **new)
-{
-	if (*new)
-		free(*new);
-	return (NULL);
-}
-
-t_list			*ft_lstnew(void const *content, size_t content_size)
-{
-	t_list	*new;
-
-	if (!(new = (t_list*)malloc(sizeof(t_list))))
+	tmp = (t_list*)ft_memalloc(sizeof(*tmp));
+	if (!tmp)
 		return (NULL);
 	if (!content)
 	{
-		new->content = (unsigned char*)NULL;
-		new->content_size = 0;
+		tmp->content = NULL;
+		tmp->content_size = 0;
 	}
-	else if (!(new->content = ft_voidcpy(content, content_size)))
-		return (ft_memfree(&new));
 	else
-		new->content_size = content_size;
-	new->next = NULL;
-	return (new);
+	{
+		tmp->content = ft_memalloc(content_size);
+		if (!tmp->content)
+		{
+			free(tmp);
+			return (NULL);
+		}
+		ft_memcpy(tmp->content, content, content_size);
+		tmp->content_size = content_size;
+	}
+	tmp->next = NULL;
+	return (tmp);
 }

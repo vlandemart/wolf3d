@@ -3,16 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ft_isprint.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/20 23:49:38 by ydavis            #+#    #+#             */
-/*   Updated: 2018/11/23 04:04:18 by ydavis           ###   ########.fr       */
+/*   Created: 2018/11/21 13:36:06 by njacobso          #+#    #+#             */
+/*   Updated: 2018/11/21 13:36:44 by njacobso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 int	ft_isprint(int c)
 {
-	if ((unsigned char)c < 32 || (unsigned char)c > 126 || c > 255 || c < 0)
-		return (0);
-	return (1);
+	return ((c >= ' ' && c <= '~') ? 1 : 0);
 }

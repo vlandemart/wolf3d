@@ -15,10 +15,19 @@
 # include <SDL2/SDL.h>
 # include <math.h>
 # include <stdlib.h>
+# include <unistd.h>
+# include <fcntl.h>
 # include "libft/libft.h"
 # define SQLEN 64
-# define MAPL 10 // DELETE AFTER
 # define RAN(l, h) (l + (h - l) * ((double)rand() / RAND_MAX * 2.0 - 1.0))
+# define MIN(a, b) ((a < b) ? a : b)
+# define MAX(a, b) ((a > b) ? a : b)
+
+typedef struct	s_v2
+{
+	float		x;
+	float		y;
+}				t_v2;
 
 typedef struct	s_pl
 {
@@ -29,6 +38,7 @@ typedef struct	s_pl
 	int     speed;
 	int     turn;
 }				t_pl;
+
 typedef struct	s_sdl
 {
 	SDL_Window		*win;
@@ -38,6 +48,7 @@ typedef struct	s_sdl
 	SDL_Texture		*txt;
 	Uint32			*pix;
 }				t_sdl;
+
 typedef struct	s_wf
 {
 	t_sdl	*sdl;
@@ -45,6 +56,7 @@ typedef struct	s_wf
 	int		width;
 	int		height;
 	int		**map;
+	int		map_size;
 	int		dist;
 	int		lov;
 	double	angw;
@@ -54,4 +66,6 @@ typedef struct	s_wf
 	int     down;
 }				t_wf;
 double			degtorad(double deg);
+t_v2			new_v2(int x, int y);
+int				read_map(t_wf *data, char *file_name);
 #endif

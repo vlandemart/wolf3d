@@ -17,15 +17,16 @@ void	init_map(t_wf *wf)
 	int i;
 	int j;
 
-	wf->map = (int**)malloc(sizeof(int*) * MAPL);
+	wf->map_size = 10;
+	wf->map = (int**)malloc(sizeof(int*) * wf->map_size);
 	i = 0;
-	while (i < MAPL)
+	while (i < wf->map_size)
 	{
-		wf->map[i] = (int*)malloc(sizeof(int) * MAPL);
+		wf->map[i] = (int*)malloc(sizeof(int) * wf->map_size);
 		j = 0;
-		while (j < MAPL)
+		while (j < wf->map_size)
 		{
-			if (!i || !j || i == MAPL - 1 || j == MAPL - 1)
+			if (!i || !j || i == wf->map_size - 1 || j == wf->map_size - 1)
 				wf->map[i][j] = 1;
 			else
 				wf->map[i][j] = 0;
@@ -83,7 +84,7 @@ double	check_y(t_wf *wf, double omega)
 	double	movey;
 
 	check = 0;
-	disty = MAPL * 600;
+	disty = wf->map_size * 600;
 	if (omega == 270 || omega == 90 || omega == 180 || omega == 0)
         return (disty);
 	if (omega < 90 || omega > 270)
@@ -103,8 +104,8 @@ double	check_y(t_wf *wf, double omega)
 			y > 0 &&
 			pow(x - wf->pl->posx, 2) + pow(y - wf->pl->posy, 2) <
 			pow(wf->lov, 2) &&
-			x < MAPL * 64 &&
-			y < MAPL * 64)
+			x < wf->map_size * 64 &&
+			y < wf->map_size * 64)
 	{
 		if (wf->map[(int)(x / 64)][(int)(y / 64)])
 		{
@@ -136,7 +137,7 @@ double  check_x(t_wf *wf, double omega)
     double  ymove;
 
     check = 0;
-    dist = MAPL * 600;
+    dist = wf->map_size * 600;
     if (omega == 90 || omega == 270 || omega == 180 || omega == 0)
         return (dist);
     if (omega > 180 || omega < 0)
@@ -157,8 +158,8 @@ double  check_x(t_wf *wf, double omega)
             y > 0 &&
             pow(x - wf->pl->posx, 2) + pow(y - wf->pl->posy, 2) <
             pow(wf->lov, 2) &&
-            x < MAPL * 64 &&
-            y < MAPL * 64)
+            x < wf->map_size * 64 &&
+            y < wf->map_size * 64)
     {
         if (wf->map[(int)(x / 64)][(int)(y / 64)])
         {
@@ -223,7 +224,7 @@ void	test(t_wf *wf)
         ymove = -sin(degtorad(omega)) * 0.05;
         distx = 0.0;
         disty = 0.0;
-        while (x >= 0 && y >= 0 && x < MAPL * 64 && y < MAPL * 64)
+        while (x >= 0 && y >= 0 && x < wf->map_size * 64 && y < wf->map_size * 64)
         {
             if (wf->map[(int)(x / 64)][(int)(y / 64)])
             {
@@ -279,14 +280,17 @@ void	test(t_wf *wf)
 		else
 			y = floor(wf->pl->posy / 64) * 64 - 1;
 		x = wf->pl->posx + (wf->pl->posy - y) / tan(degtorad(omega));
-		movex = 64 / tan(degtorad(omega));
-		while (!check &&
-				x > 0 &&
+		movex = 64 / tan		if (map_size.y == 2)
+			exit(0);torad(omega));
+		while (!check &&		if (map_size.y == 2)
+			exit(0);
+				x > 0 &&		if (map_size.y == 2)
+			exit(0);
 				y > 0 &&
 				pow(x - wf->pl->posx, 2) + pow(y - wf->pl->posy, 2) <
 				pow(wf->lov, 2) &&
-				x < MAPL * 64 &&
-				y < MAPL * 64)
+				x < wf->map_size * 64 &&
+				y < wf->map_size * 64)
 		{
 			if (wf->map[(int)x / 64][(int)y / 64])
 			{
@@ -380,7 +384,13 @@ int main(int ac, char **av)
 	wf->up = 0;
 	wf->down = 0;
 
-	init_map(wf);
+	if (ac == 2)
+	{
+		if (read_map(wf, av[1]) != 1)
+			return (0);
+	}
+	else
+		init_map(wf);
 	init_player(wf);
 
 	wf->sdl = (t_sdl*)malloc(sizeof(t_sdl));

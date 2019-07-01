@@ -3,67 +3,48 @@
 /*                                                        :::      ::::::::   */
 /*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/20 23:03:20 by ydavis            #+#    #+#             */
-/*   Updated: 2018/11/30 23:16:34 by ydavis           ###   ########.fr       */
+/*   Created: 2018/11/22 12:02:05 by njacobso          #+#    #+#             */
+/*   Updated: 2019/02/16 12:53:05 by njacobso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <string.h>
+#include <stdio.h>
+#include "libft.h"
 
-static int	ft_check_func(long ret, int count, int flag)
+static int	is_separator(char ch)
 {
-	int i;
-	int flagtmp;
-
-	i = 0;
-	flagtmp = 0;
-	if (ret < 0)
-	{
-		ret *= -1;
-		flagtmp = 1;
-	}
-	while (ret)
-	{
-		ret /= 10;
-		i++;
-	}
-	if (flag < 0)
-		count--;
-	if (i < count)
-	{
-		if (flag == -1)
-			return (0);
-		else
-			return (-1);
-	}
-	return (1);
+	if (ch == ' ' || ch == '\t' || ch == '\n' ||
+		ch == '\r' || ch == '\v' || ch == '\f')
+		return (1);
+	else
+		return (0);
 }
 
 int			ft_atoi(const char *str)
 {
-	int		i;
-	long	ret;
-	int		flag;
+	int				i;
+	unsigned long	num;
+	int				sign;
 
-	flag = 1;
 	i = 0;
-	ret = 0;
-	while (((*str <= 13 && *str >= 9) || *str == ' ') && *str)
-		str++;
+	num = 0;
+	sign = 1;
+	while (is_separator(str[i]))
+		i++;
 	if (str[i] == '-')
+		sign = -1;
+	if (str[i] == '-' || str[i] == '+')
+		i++;
+	while (str[i] && ft_isdigit(str[i]))
 	{
-		flag = -1;
-		i++;
+		num = num * 10 + (str[i++] - '0');
+		if (num > 9223372036854775807U && sign == 1)
+			return (-1);
+		if (num > 9223372036854775808U && sign == -1)
+			return (0);
 	}
-	else if (str[i] == '+')
-		i++;
-	while (str[i] && str[i] == '0')
-		str++;
-	while (str[i] <= '9' && str[i] >= '0' && str[i])
-		ret = ret * 10 + str[i++] - '0';
-	if (ft_check_func(ret, i - 1, flag) != 1)
-		return (ft_check_func(ret, i, flag));
-	return (ret * flag);
+	num = num * sign;
+	return ((int)num);
 }

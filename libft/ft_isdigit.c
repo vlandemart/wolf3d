@@ -3,17 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   ft_isdigit.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/20 23:23:47 by ydavis            #+#    #+#             */
-/*   Updated: 2018/11/23 04:03:07 by ydavis           ###   ########.fr       */
+/*   Created: 2018/11/21 13:05:24 by njacobso          #+#    #+#             */
+/*   Updated: 2018/11/21 13:12:34 by njacobso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 int	ft_isdigit(int c)
 {
-	if (c <= 255 && c >= 0)
-		if ((unsigned char)c <= '9' && (unsigned char)c >= '0')
-			return (1);
+	if (c >= '0' && c <= '9')
+	{
+		return (1);
+	}
 	return (0);
 }

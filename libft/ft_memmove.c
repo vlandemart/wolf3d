@@ -3,36 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   ft_memmove.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/29 14:37:18 by ydavis            #+#    #+#             */
-/*   Updated: 2018/11/29 18:16:40 by ydavis           ###   ########.fr       */
+/*   Created: 2018/11/24 16:09:54 by njacobso          #+#    #+#             */
+/*   Updated: 2018/11/28 21:52:31 by njacobso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
+#include <string.h>
 
 void	*ft_memmove(void *dst, const void *src, size_t len)
 {
-	size_t	i;
+	size_t		i;
+	char		*d;
+	const char	*s;
 
-	if (!len)
+	if (src == dst)
 		return (dst);
-	i = 0;
-	if (dst > src)
-	{
-		while (len > 0)
-		{
-			*(unsigned char*)(dst + len - 1) = *(unsigned char*)(src + len - 1);
-			len--;
-		}
-		*(unsigned char*)dst = *(unsigned char*)src;
-	}
+	d = (char*)dst;
+	s = (const char*)src;
+	i = -1;
+	if (s < d)
+		while ((int)(--len) >= 0)
+			d[len] = s[len];
 	else
-		while (i < len)
-		{
-			*(unsigned char*)(dst + i) = *(unsigned char*)(src + i);
-			i++;
-		}
+		while (++i < len)
+			d[i] = s[i];
 	return (dst);
 }

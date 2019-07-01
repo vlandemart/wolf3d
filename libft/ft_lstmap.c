@@ -3,55 +3,46 @@
 /*                                                        :::      ::::::::   */
 /*   ft_lstmap.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/22 01:18:08 by ydavis            #+#    #+#             */
-/*   Updated: 2018/11/30 23:10:07 by ydavis           ###   ########.fr       */
+/*   Created: 2018/12/05 20:56:41 by njacobso          #+#    #+#             */
+/*   Updated: 2018/12/05 20:57:10 by njacobso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+#include <stdlib.h>
 
-static t_list	*ft_memfree(t_list **new)
+static void	free_list(t_list *list)
 {
 	t_list *tmp;
 
-	if (!new)
-		return (NULL);
-	while (*new)
+	while (list)
 	{
-		tmp = *new;
-		if (tmp->content)
-			free(tmp->content);
-		*new = (*new)->next;
-		free(tmp);
+		tmp = list->next;
+		ft_memdel((void **)&list);
+		list = tmp;
 	}
-	return (NULL);
 }
 
-t_list			*ft_lstmap(t_list *lst, t_list *(*f)(t_list *elem))
+t_list		*ft_lstmap(t_list *lst, t_list *(*f)(t_list *elem))
 {
-	t_list	*new;
-	t_list	*tmp;
-	t_list	*iter;
+	t_list *list_new;
+	t_list *list_buf;
 
-	if (!f)
+	if (!lst || !f)
 		return (NULL);
-	new = NULL;
-	while (lst)
+	list_buf = f(lst);
+	list_new = list_buf;
+	while (lst->next)
 	{
-		tmp = f(lst);
-		if (!new)
-		{
-			if (!(new = ft_lstnew(tmp->content, tmp->content_size)))
-				return (NULL);
-			iter = new;
-		}
-		else if (!(iter->next = ft_lstnew(tmp->content, tmp->content_size)))
-			return (ft_memfree(&new));
-		else
-			iter = iter->next;
 		lst = lst->next;
+		if (!(list_buf->next = f(lst)))
+		{
+			free_list(list_new);
+			return (NULL);
+		}
+		list_buf = list_buf->next;
 	}
-	return (new);
+	return (list_new);
 }

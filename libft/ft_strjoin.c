@@ -3,58 +3,37 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strjoin.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/21 15:15:42 by ydavis            #+#    #+#             */
-/*   Updated: 2018/11/29 18:27:01 by ydavis           ###   ########.fr       */
+/*   Created: 2018/12/04 20:26:59 by njacobso          #+#    #+#             */
+/*   Updated: 2018/12/04 20:48:50 by njacobso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
+#include "libft.h"
 
-static char	*ft_realloc_c(char *str, char c, size_t size)
+char	*ft_strjoin(char const *s1, char const *s2)
 {
-	size_t	i;
-	char	*tmp;
-
-	if (!(tmp = (char*)malloc(sizeof(char) * (size + 1))))
-		return (NULL);
-	i = 0;
-	while (i < size - 1)
-	{
-		tmp[i] = str[i];
-		i++;
-	}
-	tmp[i++] = c;
-	tmp[i] = '\0';
-	return (tmp);
-}
-
-char		*ft_strjoin(char const *s1, char const *s2)
-{
-	size_t	i;
-	size_t	j;
-	char	*tmp;
+	int		size;
+	int		i;
+	int		j;
+	char	*str;
 
 	if (!s1 || !s2)
 		return (NULL);
-	i = 0;
-	if (!(tmp = (char*)malloc(sizeof(char))))
+	size = ft_strlen(s1) + ft_strlen(s2);
+	str = ft_strnew(size);
+	if (!str)
 		return (NULL);
-	*tmp = '\0';
-	while (s1[i])
-	{
-		if (!(tmp = ft_realloc_c(tmp, s1[i], i + 1)))
-			return (NULL);
-		i++;
-	}
-	j = i;
 	i = 0;
-	while (s2[i])
+	while (i < size)
 	{
-		if (!(tmp = ft_realloc_c(tmp, s2[i], j + i + 1)))
-			return (NULL);
-		i++;
+		j = 0;
+		while (s1[j])
+			str[i++] = s1[j++];
+		j = 0;
+		while (s2[j])
+			str[i++] = s2[j++];
 	}
-	return (tmp);
+	return (str);
 }

@@ -3,23 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strequ.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/21 15:10:16 by ydavis            #+#    #+#             */
-/*   Updated: 2018/11/29 16:03:04 by ydavis           ###   ########.fr       */
+/*   Created: 2018/12/04 20:26:32 by njacobso          #+#    #+#             */
+/*   Updated: 2018/12/04 20:26:33 by njacobso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 int	ft_strequ(char const *s1, char const *s2)
 {
+	int i;
+
+	i = 0;
 	if (!s1 || !s2)
 		return (0);
-	while (*s1 && *s1 == *s2)
+	while (s1[i] && s2[i])
 	{
-		s1++;
-		s2++;
+		if (s1[i] != s2[i])
+			return (0);
+		i++;
 	}
-	if (!*s1 && !*s2)
-		return (1);
-	return (0);
+	if (s1[i] || s2[i])
+		return (0);
+	return (1);
 }

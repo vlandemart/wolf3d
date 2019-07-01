@@ -3,25 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strcpy.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/20 20:51:07 by ydavis            #+#    #+#             */
-/*   Updated: 2018/11/22 04:40:50 by ydavis           ###   ########.fr       */
+/*   Created: 2018/11/28 21:54:20 by njacobso          #+#    #+#             */
+/*   Updated: 2018/11/28 21:54:22 by njacobso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <string.h>
-
 char	*ft_strcpy(char *dst, const char *src)
 {
-	size_t i;
+	int		i;
 
-	i = 0;
-	while (src[i])
-	{
-		dst[i] = src[i];
-		i++;
-	}
-	dst[i] = '\0';
+	i = -1;
+	while (*(src + ++i))
+		*(dst + i) = *(src + i);
+	*(dst + i) = '\0';
 	return (dst);
 }
