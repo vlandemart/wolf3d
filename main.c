@@ -196,7 +196,7 @@ void	fill_col(t_wf *wf, int i, double dist, int col)
 	float shading;
 
 	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
-	height = SQLEN * wf->dist / dist / 3;
+	height = SQLEN * wf->dist / dist / 2;
 	tmp = (wf->height - height) / 2;
 	j = 0;
 	while (j < wf->height)
@@ -227,11 +227,12 @@ void	test(t_wf *wf)
         omega -= 360;
     i = 0;
     tmp = pow(wf->lov, 2);
-    col = 0;
     while (i < wf->width)
 	{
+		check = 0;
         x = wf->pl->posx;
         y = wf->pl->posy;
+    	col = 0;
         xmove = cos(degtorad(omega));
         ymove = -sin(degtorad(omega));
         distx = 0.0;
@@ -248,6 +249,7 @@ void	test(t_wf *wf)
                     col = 0x00ffff;
                 else
                     col = 0xff0000;
+		check = 1;
                 break ;
             }
             x += xmove;
@@ -255,20 +257,16 @@ void	test(t_wf *wf)
             distx += xmove;
             disty += ymove;
         }
-        if (distx < 0)
-            distx = -distx;
-        if (disty < 0)
-            disty = -disty;
         dist = sqrt(pow(distx, 2) + pow(disty, 2));
-        dist *= cos(degtorad(omega - wf->pl->angle));
-        if (dist < 0)
-            dist = -dist;
-        fill_col(wf, i, dist, col);
-	    omega -= wf->angw;
+       	dist = abs((int)(dist * fabs(cos(degtorad(omega - wf->pl->angle)))));
+	if (check)
+        	fill_col(wf, i, dist, col);
+	omega -= wf->angw;
 	    if (omega < 0)
             omega += 360;
 		i++;
 	}
+
     /*
 	double	omega;
 	int		i;
@@ -533,6 +531,7 @@ int main(int ac, char **av)
 	wf->sdl = (t_sdl*)malloc(sizeof(t_sdl));
 	prepare_window(wf);
 
+	floor_and_ceiling(wf);
 	test(wf);
 
 	while (1)
