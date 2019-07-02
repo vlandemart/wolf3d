@@ -65,6 +65,7 @@ typedef struct	s_wf
 	int     right;
 	int     up;
 	int     down;
+	float	light_distance;
 }				t_wf;
 double			degtorad(double deg);
 t_v2			new_v2(int x, int y);

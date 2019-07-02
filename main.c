@@ -51,6 +51,7 @@ void	init_player(t_wf *wf)
 	wf->lov = 4 * 64;
 	wf->dist = ((double)wf->width / 2.0) / tan(degtorad(wf->pl->fov) / 2.0);
 	wf->angw = wf->pl->fov / wf->width;
+	wf->light_distance = 150.0f;
 }
 
 void     update(t_wf *wf, int flag)
@@ -194,7 +195,7 @@ void	fill_col(t_wf *wf, int i, double dist, int col)
 	int	tmp;
 	float shading;
 
-	shading = 1 - (MIN(dist, 150) / 150.0f);
+	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
 	height = SQLEN * wf->dist / dist / 3;
 	tmp = (wf->height - height) / 2;
 	j = 0;
