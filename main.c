@@ -70,6 +70,12 @@ int		close_app(t_wf *wf)
 	return (0);
 }
 
+int		close_app_s(t_wf *wf, char *str)
+{
+	printf("%s\n", str);
+	close_app(wf);
+}
+
 double	degtorad(double deg)
 {
 	return (deg * (M_PI / 180));
@@ -463,10 +469,44 @@ int	floor_and_ceiling(t_wf *data)
 	}
 }
 
+int	handle_events(t_wf *wf)
+{
+	SDL_Event	evt;
+
+	while (SDL_PollEvent(&evt))
+	{
+		if ((SDL_QUIT == evt.type) ||
+				(SDL_KEYDOWN == evt.type &&
+					SDL_SCANCODE_ESCAPE == evt.key.keysym.scancode))
+			exit(close_app_s(wf, "App was closed."));
+		if (SDL_KEYDOWN == evt.type)
+		{
+			if (SDLK_LEFT == evt.key.keysym.sym)
+				wf->left = 1;
+			if (SDLK_RIGHT == evt.key.keysym.sym)
+				wf->right = 1;
+			if (SDLK_UP == evt.key.keysym.sym)
+				wf->up = 1;
+			if (SDLK_DOWN == evt.key.keysym.sym)
+				wf->down = 1;
+		}
+		if (SDL_KEYUP == evt.type)
+		{
+			if (SDLK_LEFT == evt.key.keysym.sym)
+				wf->left = 0;
+			if (SDLK_RIGHT == evt.key.keysym.sym)
+				wf->right = 0;
+			if (SDLK_UP == evt.key.keysym.sym)
+				wf->up = 0;
+			if (SDLK_DOWN == evt.key.keysym.sym)
+				wf->down = 0;
+		}
+	}
+}
+
 int main(int ac, char **av)
 {
 	t_wf		*wf;
-	SDL_Event	evt;
 
 	wf = (t_wf*)malloc(sizeof(t_wf));
 	wf->width = 1024;
@@ -476,10 +516,10 @@ int main(int ac, char **av)
 	wf->up = 0;
 	wf->down = 0;
 
-	if (ac == 2 && read_map(wf, av[1]) != 1)
+	if (ac == 2)
 	{
-		printf("Error reading map!\n");
-		return (-1);
+		if (read_map(wf, av[1]) != 1)
+			exit(close_app_s(wf, "Error reading map!"));
 	}
 	else
 	{
@@ -503,35 +543,7 @@ int main(int ac, char **av)
 			floor_and_ceiling(wf);
             test(wf);
         }
-		while (SDL_PollEvent(&evt))
-		{
-			if ((SDL_QUIT == evt.type) ||
-					(SDL_KEYDOWN == evt.type &&
-					 SDL_SCANCODE_ESCAPE == evt.key.keysym.scancode))
-				return (close_app(wf));
-			if (SDL_KEYDOWN == evt.type)
-            {
-                if (SDLK_LEFT == evt.key.keysym.sym)
-                    wf->left = 1;
-                if (SDLK_RIGHT == evt.key.keysym.sym)
-                    wf->right = 1;
-                if (SDLK_UP == evt.key.keysym.sym)
-                    wf->up = 1;
-                if (SDLK_DOWN == evt.key.keysym.sym)
-                    wf->down = 1;
-            }
-            if (SDL_KEYUP == evt.type)
-            {
-                if (SDLK_LEFT == evt.key.keysym.sym)
-                    wf->left = 0;
-                if (SDLK_RIGHT == evt.key.keysym.sym)
-                    wf->right = 0;
-                if (SDLK_UP == evt.key.keysym.sym)
-                    wf->up = 0;
-                if (SDLK_DOWN == evt.key.keysym.sym)
-                    wf->down = 0;
-            }
-		}
+		handle_events(wf);
 	}
 	return (0);
 }
