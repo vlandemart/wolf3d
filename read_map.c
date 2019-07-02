@@ -88,3 +88,57 @@ int		read_map(t_wf *data, char *file_name)
 	printf("Map read!\n");
 	return (1);
 }
+
+int	**read_texture(char *file_name)
+{
+	int		n;
+	char	*tmp;
+	char	*str;
+	int		i;
+	int		j;
+	int		**texture;
+
+	n = open(file_name, O_RDONLY);
+	if (n <= 0)
+		return (NULL);
+	str = ft_strnew(0);
+	printf("Reading texture...\n");
+	while (get_next_line(n, &tmp) > 0)
+	{
+		str = ft_strjoinc(str, tmp);
+		str = ft_strjoinc(str, "\n");
+		ft_strdel(&tmp);
+	}
+	printf("Texture read.\n");
+	printf("Opening texture...\n");
+	texture = (int**)malloc(sizeof(int*) * 64);
+	i = 0;
+	while (i < 64)
+	{
+		texture[i] = (int*)malloc(sizeof(int) * 64);
+		i++;
+	}
+	i = 0;
+	n = 0;
+	while (str[n])
+	{
+		j = 0;
+		while (str[n] && str[n] != '\n')
+		{
+			tmp = ft_strnew(0);
+			while (isdigit(str[n]))
+			{
+				tmp = ft_strjoinc(tmp, &str[n]);
+				n++;
+			}
+			texture[i][j] = ft_atoi(tmp);
+			ft_strdel(&tmp);
+			n++;
+			j++;
+		}
+		n++;
+		i++;
+	}
+	printf("Texture loaded.\n");
+	return (texture);
+}

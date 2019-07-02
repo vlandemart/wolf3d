@@ -70,6 +70,7 @@ typedef struct	s_wf
 double			degtorad(double deg);
 t_v2			new_v2(int x, int y);
 int				read_map(t_wf *data, char *file_name);
+int				**read_texture(char *file_name);
 int				rgb_add(int rgb, float value);
 int				rgb_multiply(int rgb, float value);
 #endif
