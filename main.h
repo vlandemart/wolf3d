@@ -22,6 +22,7 @@
 # define RAN(l, h) (l + (h - l) * ((double)rand() / RAND_MAX * 2.0 - 1.0))
 # define MIN(a, b) ((a < b) ? a : b)
 # define MAX(a, b) ((a > b) ? a : b)
+# define CLAMP(a, mi, ma) MIN(MAX(a, mi), ma)
 
 typedef struct	s_v2
 {
@@ -68,4 +69,6 @@ typedef struct	s_wf
 double			degtorad(double deg);
 t_v2			new_v2(int x, int y);
 int				read_map(t_wf *data, char *file_name);
+int				rgb_add(int rgb, float value);
+int				rgb_multiply(int rgb, float value);
 #endif
