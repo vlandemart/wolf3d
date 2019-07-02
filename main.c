@@ -192,14 +192,16 @@ void	fill_col(t_wf *wf, int i, double dist, int col)
 	int j;
 	int	height;
 	int	tmp;
+	float shading;
 
+	shading = 1 - (MIN(dist, 150) / 150.0f);
 	height = SQLEN * wf->dist / dist / 3;
 	tmp = (wf->height - height) / 2;
 	j = 0;
 	while (j < wf->height)
 	{
 		if (j > tmp && j < tmp + height)
-			wf->sdl->pix[i + wf->width * j] = col;
+			wf->sdl->pix[i + wf->width * j] = rgb_multiply(col, shading);
 		j++;
 	}
 }
