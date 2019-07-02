@@ -423,6 +423,46 @@ void movement(t_wf *wf)
         }
 }
 
+int	floor_and_ceiling(t_wf *data)
+{
+	int i;
+	int j;
+	int color;
+	int rgb;
+	int br;
+
+	//ceiling
+	color = 30;
+	i = 0;
+	while (i < data->height / 2)
+	{
+		j = 0;
+		while (j < data->width)
+		{
+			br = (int)(color * (float)(((float)(data->height / 2) - (float)i) / (float)(data->height / 2)));
+			rgb = (br << 16) + (br << 8) + br;
+			data->sdl->pix[i * data->width + j] = rgb;
+			j++;
+		}
+		i++;
+	}
+	//floor
+	color = 50;
+	i = data->height - 1;
+	while (i > data->height / 2)
+	{
+		j = 0;
+		while (j < data->width)
+		{
+			br = (int)(color * (float)((float)i / (float)(data->height / 2)));
+			rgb = (br << 16) + (br << 8) + br;
+			data->sdl->pix[i * data->width + j] = rgb;
+			j++;
+		}
+		i--;
+	}
+}
+
 int main(int ac, char **av)
 {
 	t_wf		*wf;
@@ -460,6 +500,7 @@ int main(int ac, char **av)
         {
             memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
             movement(wf);
+			floor_and_ceiling(wf);
             test(wf);
         }
 		while (SDL_PollEvent(&evt))
