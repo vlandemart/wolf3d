@@ -111,11 +111,11 @@ int	**read_texture(char *file_name)
 	}
 	printf("Texture read.\n");
 	printf("Opening texture...\n");
-	texture = (int**)malloc(sizeof(int*) * 64);
+	texture = (int**)malloc(sizeof(int*) * 32);
 	i = 0;
-	while (i < 64)
+	while (i < 32)
 	{
-		texture[i] = (int*)malloc(sizeof(int) * 64);
+		texture[i] = (int*)malloc(sizeof(int) * 32);
 		i++;
 	}
 	i = 0;
