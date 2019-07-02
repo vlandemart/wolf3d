@@ -438,14 +438,14 @@ int	floor_and_ceiling(t_wf *data)
 	int br;
 
 	//ceiling
-	color = 30;
+	color = 70;
 	i = 0;
 	while (i < data->height / 2)
 	{
 		j = 0;
 		while (j < data->width)
 		{
-			br = (int)(color * (float)(((float)(data->height / 2) - (float)i) / (float)(data->height / 2)));
+			br = (int)(color * (float)((float)((data->height / 2) - i) / (float)(data->height / 2)));
 			rgb = (br << 16) + (br << 8) + br;
 			data->sdl->pix[i * data->width + j] = rgb;
 			j++;
@@ -453,14 +453,14 @@ int	floor_and_ceiling(t_wf *data)
 		i++;
 	}
 	//floor
-	color = 50;
+	color = 0xff;
 	i = data->height - 1;
 	while (i > data->height / 2)
 	{
 		j = 0;
 		while (j < data->width)
 		{
-			br = (int)(color * (float)((float)i / (float)(data->height / 2)));
+			br = (int)(color * (float)((float)(i - data->height / 2) / (float)(data->height / 2)));
 			rgb = (br << 16) + (br << 8) + br;
 			data->sdl->pix[i * data->width + j] = rgb;
 			j++;
