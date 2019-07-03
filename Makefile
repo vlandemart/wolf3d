@@ -13,13 +13,15 @@
 NAME		= game
 CFLAGS		= -o1 -o2 -o3 #-Wall -Werror -Wextra
 FILES		= *.c
-LIBSLD		= -lSDL2 -lSDL2main -lm
-LIBFT		= ./libft/libft.a
+#LIBSLD		= -lSDL2 -lSDL2main -lm
+INCLUDES	= include
+LIBSDL		= -L lib/sdl -lSDL2
+LIBFT		= -L lib/libft -lft
 
 all: $(NAME)
 
 $(NAME):
-	gcc $(CFLAGS) $(FILES) $(LIBSLD) $(LIBFT) -o $(NAME)
+	gcc $(CFLAGS) -I $(INCLUDES) $(LIBSDL) $(LIBFT) $(FILES) -o $(NAME)
 
 clean:
 	rm -rf $(NAME)

@@ -12,12 +12,13 @@
 
 #ifndef MAIN_H
 # define MAIN_H
-# include <SDL2/SDL.h>
+# include "SDL2/SDL.h"
 # include <math.h>
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
-# include "libft/libft.h"
+# include "libft.h"
+//# include "libft/libft.h"
 # define SQLEN 64
 # define RAN(l, h) (l + (h - l) * ((double)rand() / RAND_MAX * 2.0 - 1.0))
 # define MIN(a, b) ((a < b) ? a : b)

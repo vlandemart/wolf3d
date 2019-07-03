@@ -75,6 +75,7 @@ int		close_app_s(t_wf *wf, char *str)
 {
 	printf("%s\n", str);
 	close_app(wf);
+	return (1);
 }
 
 double	degtorad(double deg)
@@ -287,8 +288,6 @@ void	test(t_wf *wf)
             omega += 360;
         i++;
 	}
-    */
-	    /*
 		check = 0;
 		if ((omega > 180 || omega < 0) && omega < 360)
 			y = floor(wf->pl->posy / 64) * 64 + 64;
@@ -318,7 +317,6 @@ void	test(t_wf *wf)
 		if (check == 1)
 		{
 			distx = fabs(wf->pl->posx - x) / cos(degtorad(omega)) * cos(degtorad(omega - wf->pl->angle));
-			/*
 			fill_col(wf, i, distx, omega);
 			disty = check_y(wf, omega);
 			if (disty < 0)
@@ -335,9 +333,7 @@ void	test(t_wf *wf)
 		if (omega >= 360)
 			omega -= 360;
 		i++;
-		*/
 
-	/*
 	while (i < wf->width)
 	{
 		check = 0;
@@ -466,6 +462,7 @@ int	floor_and_ceiling(t_wf *data)
 		}
 		i--;
 	}
+	return (1);
 }
 
 int	handle_events(t_wf *wf)
@@ -501,6 +498,7 @@ int	handle_events(t_wf *wf)
 				wf->down = 0;
 		}
 	}
+	return (1);
 }
 
 int main(int ac, char **av)
