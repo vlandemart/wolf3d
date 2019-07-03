@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/06/29 00:56:12 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/03 15:07:46 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
-# include "libft.h"
+# include "lib/libft/libft.h"
 //# include "libft/libft.h"
 # define SQLEN 64
 # define RAN(l, h) (l + (h - l) * ((double)rand() / RAND_MAX * 2.0 - 1.0))
