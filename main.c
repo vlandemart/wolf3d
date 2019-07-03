@@ -37,125 +37,30 @@ void	init_map(t_wf *wf)
 	wf->map[3][4] = 1;
 	wf->map[3][5] = 1;
 	wf->map[4][4] = 1;
+	wf->map[7][7] = 2;
 }
 
 void	init_player(t_wf *wf)
 {
 	wf->pl = (t_pl*)malloc(sizeof(t_pl));
-	wf->pl->posx = 127;
-	wf->pl->posy = 127;
+	wf->pl->posx = 150;
+	wf->pl->posy = 150;
 	wf->pl->angle = 45;
 	wf->pl->fov = 60;
-	wf->pl->turn = 1;
-	wf->pl->speed = 1;
+	wf->pl->turn = 3;
+	wf->pl->speed = 3;
 	wf->lov = 4 * 64;
 	wf->dist = ((double)wf->width / 2.0) / tan(degtorad(wf->pl->fov) / 2.0);
 	wf->angw = wf->pl->fov / wf->width;
 	wf->light_distance = 150.0f;
 }
 
-void	init_tx1(t_wf *wf)
-{
-	int i;
-	int j;
-
-	i = 0;
-	wf->tx1 = (int**)malloc(sizeof(int*) * 64);
-	while (i < 64)
-	{
-		wf->tx1[i] = (int*)malloc(sizeof(int) * 64);
-		j = 0;
-		while (j < 64)
-		{
-			if (i && j && i != 63 && j != 63)
-				wf->tx1[i][j] = 0x0000ff;
-			else
-				wf->tx1[i][j] = 0xffffff;
-			j++;
-		}
-		i++;
-	}
-	wf->tx1[32][32] = 0xffffff;
-}
-
-void	init_tx2(t_wf *wf)
-{
-	int i;
-	int j;
-
-	i = 0;
-	wf->tx2 = (int**)malloc(sizeof(int*) * 64);
-	while (i < 64)
-	{
-		wf->tx2[i] = (int*)malloc(sizeof(int) * 64);
-		j = 0;
-		while (j < 64)
-		{
-			if (i && j && i != 63 && j != 63)
-				wf->tx2[i][j] = 0x00ff00;
-			else
-				wf->tx2[i][j] = 0xffffff;
-			j++;
-		}
-		i++;
-	}
-	wf->tx2[32][32] = 0xffffff;
-}
-
-void	init_tx3(t_wf *wf)
-{
-	int i;
-	int j;
-
-	i = 0;
-	wf->tx3 = (int**)malloc(sizeof(int*) * 64);
-	while (i < 64)
-	{
-		wf->tx3[i] = (int*)malloc(sizeof(int) * 64);
-		j = 0;
-		while (j < 64)
-		{
-			if (i && j && i != 63 && j != 63)
-				wf->tx3[i][j] = 0x00ffff;
-			else
-				wf->tx3[i][j] = 0xffffff;
-			j++;
-		}
-		i++;
-	}
-	wf->tx3[32][32] = 0xffffff;
-}
-
-void	init_tx4(t_wf *wf)
-{
-	int i;
-	int j;
-
-	i = 0;
-	wf->tx4 = (int**)malloc(sizeof(int*) * 64);
-	while (i < 64)
-	{
-		wf->tx4[i] = (int*)malloc(sizeof(int) * 64);
-		j = 0;
-		while (j < 64)
-		{
-			if (i  && j && i != 63 && j != 63)
-				wf->tx4[i][j] = 0xff0000;
-			else
-				wf->tx4[i][j] = 0xffffff;
-			j++;
-		}
-		i++;
-	}
-	wf->tx4[32][32] = 0xffffff;
-}
-
 void	init_textures(t_wf *wf)
 {
-	init_tx1(wf);
-	init_tx2(wf);
-	init_tx3(wf);
-	init_tx4(wf);
+	wf->tx1 = read_texture("texture_creator/brick.wolf");
+	wf->tx2 = read_texture("texture_creator/brick.wolf");
+	wf->tx3 = read_texture("texture_creator/img.wolf");
+	wf->tx4 = read_texture("texture_creator/img.wolf");
 }
 
 void     update(t_wf *wf, int flag)
@@ -187,7 +92,7 @@ double	degtorad(double deg)
 	return (deg * (M_PI / 180));
 }
 
-void	fill_col(t_wf *wf, int i, double dist, int check, double param)
+void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
 {
 	int j;
 	int	height;
@@ -213,86 +118,162 @@ void	fill_col(t_wf *wf, int i, double dist, int check, double param)
 		if (j > tmp && j < tmp + height)
 		{
 			percent = (double)(j - tmp) / (double)height;
-			wf->sdl->pix[i + wf->width * j] = rgb_multiply(txt[(int)param % 64][(int)(64.0 * percent)], shading);
+			wf->sdl->pix[i + wf->width * j] = rgb_multiply(txt[(int)param % 32][(int)(32.0 * percent)], shading);
 		}
 		j++;
 	}
 }
 
-void	test(t_wf *wf)
+int		render_walls(t_wf *wf, double omega, t_v2 *end, int i)
 {
-    int i;
     int check;
-    double x;
-    double y;
-    double distx;
-    double disty;
-    double omega;
-    double xmove;
-    double ymove;
-    double dist;
-    double tmp;
+	int ret;
+    t_v2	dist;
+	t_v2	move;
+	double towall;
+	double length;
 	double	send;
-    int col;
 
+// MAKE A CLEAN UP, CHECK t_v2, DO EVERYTHING WITH IT
+
+    length = pow(wf->lov, 2);
+	check = 0;
+	ret = 0;
+	end->x = wf->pl->posx;
+	end->y = wf->pl->posy;
+	move.x = cos(degtorad(omega));
+	move.y = -sin(degtorad(omega));
+	dist.x = 0.0;
+	dist.y = 0.0;
+
+	while (end->x >= 0 && end->y >= 0 && end->x < wf->map_size * 64 &&
+		end->y < wf->map_size * 64 &&
+		pow(dist.x, 2) + pow(dist.y, 2) < length)
+	{
+		if (wf->map[(int)(end->x / 64)][(int)(end->y / 64)] == 2 &&
+				(int)end->x % 64 < 40 && (int)end->x % 64 > 20 &&
+				(int)end->y % 64 < 40 && (int)end->y % 64 > 20)
+			ret++;
+		if (wf->map[(int)(end->x / 64)][(int)(end->y / 64)] == 1)
+		{
+			if ((int)(end->x - move.x) / 64 > (int)end->x / 64)
+			{
+				send = end->y;
+				check = 1;
+			}
+			else if ((int)(end->x - move.x) / 64 < (int)end->x / 64)
+			{
+				send = end->y;
+				check = 2;
+			}
+			else if ((int)(end->y - move.y) / 64 > (int)end->y / 64)
+			{
+				send = end->x;
+				check = 3;
+			}
+			else
+			{
+				send = end->x;
+				check = 4;
+			}
+			break ;
+		}
+		end->x += move.x;
+		end->y += move.y;
+		dist.x += move.x;
+		dist.y += move.y;
+	}
+
+	towall = sqrt(pow(dist.x, 2) + pow(dist.y, 2));
+	towall = fabs(towall * cos(degtorad(omega - wf->pl->angle)));
+	if (check)
+		draw_wall(wf, i, towall, check, send);
+	return (ret);
+}
+
+void	draw_sprite(t_wf *wf, int i, double dist)
+{
+	int col;
+	int j;
+	double shading;
+	int		height;
+	int		tmp;
+
+	col = 0xffffff;
+	j = 0;
+	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
+	height = SQLEN * wf->dist / dist / 2;
+	tmp = (wf->height - height) / 4;
+	while (j < wf->height)
+	{
+		if (j > tmp * 3 && j < tmp * 4)
+			wf->sdl->pix[i + wf->width * j] = rgb_multiply(col, shading);
+		j++;
+	}
+}
+
+void	render_sprites(t_wf *wf, double omega, int sprites, t_v2 start, int i)
+{
+	(void)wf;
+	(void)omega;
+	(void)sprites;
+	(void)start;
+	(void)i;
+
+/*  
+	// IT IS FULL OF SHIT! I'LL MAKE A GOOD VERSION WHEN I FIGURE OUT A BETTER WAY TO DO IT
+	t_v2 move;
+	double dist;
+
+	move.x = cos(degtorad(omega));
+	move.y = -sin(degtorad(omega));
+	printf("%f %f %f %f -> %f %f\n", move.x, move.y, start.x, start.y, wf->pl->posx, wf->pl->posy);
+	while (sprites || (int)start.x != (int)wf->pl->posx || (int)start.y != (int)wf->pl->posy)
+	{
+		if (wf->map[(int)(start.x / 64)][(int)(start.y / 64)] == 2 &&
+				(int)start.x % 64 < 40 && (int)start.x % 64 > 20 &&
+				(int)start.y % 64 < 40 && (int)start.y % 64 > 20)
+		{
+			dist = sqrt(pow(start.x - wf->pl->posx, 2) + pow(start.y - wf->pl->posy, 2));
+			dist = fabs(dist * cos(degtorad(omega - wf->pl->angle)));
+			draw_sprite(wf, i, dist);
+			sprites--;
+		}
+		start.x -= move.x;
+		start.y -= move.y;
+	}
+*/
+
+	/*
+	(void)wf;
+	(void)omega;
+	(void)sprites;
+	(void)start;
+	*/
+// STOPPED HERE, TRY TO MAKE ALL SPRITES	
+}
+
+void	render_all(t_wf *wf)
+{
+	int		i;
+	int		sprites;
+	double	omega;
+	t_v2	end;
+
+	i = 0;
     omega = wf->pl->angle + wf->pl->fov / 2;
     if (omega >= 360)
         omega -= 360;
-    i = 0;
-    tmp = pow(wf->lov, 2);
-    while (i < wf->width)
+	while (i < wf->width)
 	{
-		check = 0;
-        x = wf->pl->posx;
-        y = wf->pl->posy;
-    	col = 0;
-        xmove = cos(degtorad(omega));
-        ymove = -sin(degtorad(omega));
-        distx = 0.0;
-        disty = 0.0;
-        while (x >= 0 && y >= 0 && x < wf->map_size * 64 &&
-				y < wf->map_size * 64 &&
-				pow(distx, 2) + pow(disty, 2) < tmp)
-        {
-            if (wf->map[(int)(x / 64)][(int)(y / 64)])
-            {
-                if ((int)(x - xmove) / 64 > (int)x / 64)
-				{
-					send = y;
-					check = 1;
-				}
-				else if ((int)(x - xmove) / 64 < (int)x / 64)
-				{
-					send = y;
-					check = 2;
-				}
-				else if ((int)(y - ymove) / 64 > (int)y / 64)
-				{
-					send = x;
-					check = 3;
-                }
-				else
-				{
-					send = x;
-					check = 4;
-				}
-				break ;
-            }
-            x += xmove;
-            y += ymove;
-            distx += xmove;
-            disty += ymove;
-        }
-        dist = sqrt(pow(distx, 2) + pow(disty, 2));
-       	dist = fabs(dist * fabs(cos(degtorad(omega - wf->pl->angle))));
-	if (check)
-        	fill_col(wf, i, dist, check, send);
-	omega -= wf->angw;
-	    if (omega < 0)
-            omega += 360;
+		end.x = 0;
+		end.y = 0;
+		sprites = render_walls(wf, omega, &end, i);
+		if (sprites)
+			render_sprites(wf, omega, sprites, end, i);
 		i++;
+		omega -= wf->angw;
 	}
-
 	update(wf, 0);
 }
 
@@ -318,10 +299,10 @@ void movement(t_wf *wf)
             x = wf->pl->posx;
             y = wf->pl->posy;
             x -= cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+            if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
                 x = wf->pl->posx;
             y += sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+            if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
                 y = wf->pl->posy;
             wf->pl->posx = x;
             wf->pl->posy = y;
@@ -332,10 +313,10 @@ void movement(t_wf *wf)
             x = wf->pl->posx;
             y = wf->pl->posy;
             x += cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+            if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
                 x = wf->pl->posx;
             y -= sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+            if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
                 y = wf->pl->posy;
             wf->pl->posx = x;
             wf->pl->posy = y;
@@ -346,10 +327,10 @@ void movement(t_wf *wf)
 		x = wf->pl->posx;
 		y = wf->pl->posy;
 		x += cos(degtorad(wf->pl->angle + 90)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+		if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
         	x = wf->pl->posx;
 		y -= sin(degtorad(wf->pl->angle + 90)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+		if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
 			y = wf->pl->posy;
 		wf->pl->posx = x;
 		wf->pl->posy = y;
@@ -360,10 +341,10 @@ void movement(t_wf *wf)
 		x = wf->pl->posx;
 		y = wf->pl->posy;
 		x += cos(degtorad(wf->pl->angle - 90)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+		if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
         	x = wf->pl->posx;
 		y -= sin(degtorad(wf->pl->angle - 90)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+		if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
 			y = wf->pl->posy;
 		wf->pl->posx = x;
 		wf->pl->posy = y;
@@ -489,6 +470,7 @@ int main(int ac, char **av)
 		wf->map_size = 10;
 		init_map(wf);
 	}
+
 	init_player(wf);
 
 	init_textures(wf);
@@ -497,7 +479,7 @@ int main(int ac, char **av)
 	prepare_window(wf);
 
 	floor_and_ceiling(wf);
-	test(wf);
+	render_all(wf);
 
 	while (1)
 	{
@@ -506,7 +488,7 @@ int main(int ac, char **av)
             memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
             movement(wf);
 			floor_and_ceiling(wf);
-            test(wf);
+            render_all(wf);
         }
 		handle_events(wf);
 	}
