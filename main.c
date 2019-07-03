@@ -54,6 +54,110 @@ void	init_player(t_wf *wf)
 	wf->light_distance = 150.0f;
 }
 
+void	init_tx1(t_wf *wf)
+{
+	int i;
+	int j;
+
+	i = 0;
+	wf->tx1 = (int**)malloc(sizeof(int*) * 64);
+	while (i < 64)
+	{
+		wf->tx1[i] = (int*)malloc(sizeof(int) * 64);
+		j = 0;
+		while (j < 64)
+		{
+			if (i && j && i != 63 && j != 63)
+				wf->tx1[i][j] = 0x0000ff;
+			else
+				wf->tx1[i][j] = 0xffffff;
+			j++;
+		}
+		i++;
+	}
+	wf->tx1[32][32] = 0xffffff;
+}
+
+void	init_tx2(t_wf *wf)
+{
+	int i;
+	int j;
+
+	i = 0;
+	wf->tx2 = (int**)malloc(sizeof(int*) * 64);
+	while (i < 64)
+	{
+		wf->tx2[i] = (int*)malloc(sizeof(int) * 64);
+		j = 0;
+		while (j < 64)
+		{
+			if (i && j && i != 63 && j != 63)
+				wf->tx2[i][j] = 0x00ff00;
+			else
+				wf->tx2[i][j] = 0xffffff;
+			j++;
+		}
+		i++;
+	}
+	wf->tx2[32][32] = 0xffffff;
+}
+
+void	init_tx3(t_wf *wf)
+{
+	int i;
+	int j;
+
+	i = 0;
+	wf->tx3 = (int**)malloc(sizeof(int*) * 64);
+	while (i < 64)
+	{
+		wf->tx3[i] = (int*)malloc(sizeof(int) * 64);
+		j = 0;
+		while (j < 64)
+		{
+			if (i && j && i != 63 && j != 63)
+				wf->tx3[i][j] = 0x00ffff;
+			else
+				wf->tx3[i][j] = 0xffffff;
+			j++;
+		}
+		i++;
+	}
+	wf->tx3[32][32] = 0xffffff;
+}
+
+void	init_tx4(t_wf *wf)
+{
+	int i;
+	int j;
+
+	i = 0;
+	wf->tx4 = (int**)malloc(sizeof(int*) * 64);
+	while (i < 64)
+	{
+		wf->tx4[i] = (int*)malloc(sizeof(int) * 64);
+		j = 0;
+		while (j < 64)
+		{
+			if (i  && j && i != 63 && j != 63)
+				wf->tx4[i][j] = 0xff0000;
+			else
+				wf->tx4[i][j] = 0xffffff;
+			j++;
+		}
+		i++;
+	}
+	wf->tx4[32][32] = 0xffffff;
+}
+
+void	init_textures(t_wf *wf)
+{
+	init_tx1(wf);
+	init_tx2(wf);
+	init_tx3(wf);
+	init_tx4(wf);
+}
+
 void     update(t_wf *wf, int flag)
 {
     if (flag)
@@ -83,13 +187,23 @@ double	degtorad(double deg)
 	return (deg * (M_PI / 180));
 }
 
-void	fill_col(t_wf *wf, int i, double dist, int col)
+void	fill_col(t_wf *wf, int i, double dist, int check, double param)
 {
 	int j;
 	int	height;
 	int	tmp;
+	int		**txt;
 	float shading;
+	double	percent;
 
+	if (check == 1)
+		txt = wf->tx1;
+	else if (check == 2)
+		txt = wf->tx2;
+	else if (check == 3)
+		txt = wf->tx3;
+	else if (check == 4)
+		txt = wf->tx4;
 	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
 	height = SQLEN * wf->dist / dist / 2;
 	tmp = (wf->height - height) / 2;
@@ -97,7 +211,10 @@ void	fill_col(t_wf *wf, int i, double dist, int col)
 	while (j < wf->height)
 	{
 		if (j > tmp && j < tmp + height)
-			wf->sdl->pix[i + wf->width * j] = rgb_multiply(col, shading);
+		{
+			percent = (double)(j - tmp) / (double)height;
+			wf->sdl->pix[i + wf->width * j] = rgb_multiply(txt[(int)param % 64][(int)(64.0 * percent)], shading);
+		}
 		j++;
 	}
 }
@@ -115,6 +232,7 @@ void	test(t_wf *wf)
     double ymove;
     double dist;
     double tmp;
+	double	send;
     int col;
 
     omega = wf->pl->angle + wf->pl->fov / 2;
@@ -139,15 +257,26 @@ void	test(t_wf *wf)
             if (wf->map[(int)(x / 64)][(int)(y / 64)])
             {
                 if ((int)(x - xmove) / 64 > (int)x / 64)
-                    col = 0x0000ff;
-                else if ((int)(x - xmove) / 64 < (int)x / 64)
-                    col = 0x00ff00;
-                else if ((int)(y - ymove) / 64 > (int)y / 64)
-                    col = 0x00ffff;
-                else
-                    col = 0xff0000;
-		check = 1;
-                break ;
+				{
+					send = y;
+					check = 1;
+				}
+				else if ((int)(x - xmove) / 64 < (int)x / 64)
+				{
+					send = y;
+					check = 2;
+				}
+				else if ((int)(y - ymove) / 64 > (int)y / 64)
+				{
+					send = x;
+					check = 3;
+                }
+				else
+				{
+					send = x;
+					check = 4;
+				}
+				break ;
             }
             x += xmove;
             y += ymove;
@@ -155,9 +284,9 @@ void	test(t_wf *wf)
             disty += ymove;
         }
         dist = sqrt(pow(distx, 2) + pow(disty, 2));
-       	dist = abs((int)(dist * fabs(cos(degtorad(omega - wf->pl->angle)))));
+       	dist = fabs(dist * fabs(cos(degtorad(omega - wf->pl->angle))));
 	if (check)
-        	fill_col(wf, i, dist, col);
+        	fill_col(wf, i, dist, check, send);
 	omega -= wf->angw;
 	    if (omega < 0)
             omega += 360;
@@ -361,6 +490,8 @@ int main(int ac, char **av)
 		init_map(wf);
 	}
 	init_player(wf);
+
+	init_textures(wf);
 
 	wf->sdl = (t_sdl*)malloc(sizeof(t_sdl));
 	prepare_window(wf);

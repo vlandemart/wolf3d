@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/03 15:24:16 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/03 15:38:36 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,10 @@ typedef struct	s_wf
 	int		dist;
 	int		lov;
 	double	angw;
+	int		**tx1;
+	int		**tx2;
+	int		**tx3;
+	int		**tx4;
 	int     left;
 	int     right;
 	int     up;
