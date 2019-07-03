@@ -197,7 +197,8 @@ void movement(t_wf *wf)
             wf->pl->posx = x;
             wf->pl->posy = y;
         }
-        if (wf->up)
+
+	if (wf->up)
         {
             x = wf->pl->posx;
             y = wf->pl->posy;
@@ -210,13 +211,43 @@ void movement(t_wf *wf)
             wf->pl->posx = x;
             wf->pl->posy = y;
         }
-        if (wf->right)
-        {
+
+	if (wf->strafel)
+	{
+		x = wf->pl->posx;
+		y = wf->pl->posy;
+		x += cos(degtorad(wf->pl->angle + 90)) * wf->pl->speed;
+		if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+        	x = wf->pl->posx;
+		y -= sin(degtorad(wf->pl->angle + 90)) * wf->pl->speed;
+		if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+			y = wf->pl->posy;
+		wf->pl->posx = x;
+		wf->pl->posy = y;
+	}
+
+	if (wf->strafer)
+	{
+		x = wf->pl->posx;
+		y = wf->pl->posy;
+		x += cos(degtorad(wf->pl->angle - 90)) * wf->pl->speed;
+		if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+        	x = wf->pl->posx;
+		y -= sin(degtorad(wf->pl->angle - 90)) * wf->pl->speed;
+		if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64])
+			y = wf->pl->posy;
+		wf->pl->posx = x;
+		wf->pl->posy = y;
+	}
+
+	if (wf->right)
+	{
             wf->pl->angle -= wf->pl->turn;
             if (wf->pl->angle < 0)
                 wf->pl->angle += 360;
         }
-        if (wf->left)
+
+	if (wf->left)
         {
             wf->pl->angle += wf->pl->turn;
             if (wf->pl->angle >= 360)
@@ -281,6 +312,10 @@ void	handle_events(t_wf *wf)
 				wf->up = 1;
 			if (SDLK_DOWN == evt.key.keysym.sym || SDLK_s == evt.key.keysym.sym)
 				wf->down = 1;
+			if (SDLK_a == evt.key.keysym.sym)
+				wf->strafel = 1;
+			if (SDLK_d == evt.key.keysym.sym)
+				wf->strafer = 1;
 		}
 		if (SDL_KEYUP == evt.type)
 		{
@@ -292,6 +327,10 @@ void	handle_events(t_wf *wf)
 				wf->up = 0;
 			if (SDLK_DOWN == evt.key.keysym.sym || SDLK_s == evt.key.keysym.sym)
 				wf->down = 0;
+			if (SDLK_a == evt.key.keysym.sym)
+				wf->strafel = 0;
+			if (SDLK_d == evt.key.keysym.sym)
+				wf->strafer = 0;
 		}
 	}
 }
@@ -307,6 +346,8 @@ int main(int ac, char **av)
 	wf->right = 0;
 	wf->up = 0;
 	wf->down = 0;
+	wf->strafer = 0;
+	wf->strafel = 0;
 
 	if (ac == 2)
 	{
@@ -329,7 +370,7 @@ int main(int ac, char **av)
 
 	while (1)
 	{
-	    if (wf->down || wf->up || wf->right || wf->left)
+	    if (wf->strafel || wf->strafer || wf->down || wf->up || wf->right || wf->left)
         {
             memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
             movement(wf);

@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/03 15:07:46 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/03 15:24:16 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ typedef struct	s_wf
 	int     right;
 	int     up;
 	int     down;
+	int		strafer;
+	int		strafel;
 	float	light_distance;
 }				t_wf;
 double			degtorad(double deg);
