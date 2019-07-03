@@ -58,8 +58,8 @@ void	init_player(t_wf *wf)
 void	init_textures(t_wf *wf)
 {
 	wf->tx1 = read_texture("texture_creator/brick.wolf");
-	wf->tx2 = read_texture("texture_creator/brick.wolf");
-	wf->tx3 = read_texture("texture_creator/img.wolf");
+	wf->tx2 = read_texture("texture_creator/brick2.wolf");
+	wf->tx3 = read_texture("texture_creator/wood1.wolf");
 	wf->tx4 = read_texture("texture_creator/img.wolf");
 }
 
@@ -264,6 +264,7 @@ void	render_all(t_wf *wf)
     omega = wf->pl->angle + wf->pl->fov / 2;
     if (omega >= 360)
         omega -= 360;
+	//draw_walls(wf);
 	while (i < wf->width)
 	{
 		end.x = 0;

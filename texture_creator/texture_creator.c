@@ -263,7 +263,8 @@ int			event_handle(t_data *data)
 				data->color_added = 3;
 			if (event.key.keysym.sym == SDLK_4)
 				data->color_added = 4;
-			if (event.key.keysym.sym == SDLK_l)
+			if (event.key.keysym.sym == SDLK_l ||
+				event.key.keysym.sym == SDLK_KP_PLUS)
 				export_image(data);
 		}
 		if (event.type == SDL_KEYUP)
