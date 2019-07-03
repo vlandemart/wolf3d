@@ -6,9 +6,9 @@
 */
 int	rgb_split(int rgb, int *r, int *g, int *b)
 {
-	*b = (rgb >> 16) & 0xff;
+	*r = (rgb >> 16) & 0xff;
 	*g = (rgb >> 8) & 0xff;
-	*r = rgb & 0xff;
+	*b = rgb & 0xff;
 
 	return (1);
 }

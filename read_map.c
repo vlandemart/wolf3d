@@ -131,7 +131,7 @@ int	**read_texture(char *file_name)
 				tmp = ft_strjoinc(tmp, &str[n]);
 				n++;
 			}
-			texture[i][j] = ft_atoi(tmp);
+			texture[j][i] = ft_atoi(tmp);
 			ft_strdel(&tmp);
 			n++;
 			j++;
