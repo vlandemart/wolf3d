@@ -1,6 +1,6 @@
 #include "main.h"
 
-t_v2	new_v2(int x, int y)
+t_v2	new_v2(float x, float y)
 {
 	t_v2 v2;
 

@@ -75,9 +75,14 @@ typedef struct	s_wf
 	float	light_distance;
 }				t_wf;
 double			degtorad(double deg);
-t_v2			new_v2(int x, int y);
+t_v2			new_v2(float x, float y);
 int				read_map(t_wf *data, char *file_name);
 int				**read_texture(char *file_name);
 int				rgb_add(int rgb, float value);
 int				rgb_multiply(int rgb, float value);
+void			draw_walls(t_wf *wf);
+void			update(t_wf *wf, int flag);
+void			draw_wall(t_wf *wf, int i, double dist, int check, double param);
+int				raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side);
+
 #endif

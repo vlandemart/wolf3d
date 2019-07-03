@@ -1,5 +1,5 @@
 #include <SDL2/SDL.h>
-#include "../libft/libft.h"
+#include "../lib/libft/libft.h"
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -104,6 +104,7 @@ int			export_image(t_data *data)
 	write(fd, str, ft_strlen(str) * sizeof(char));
 	close(fd);
 	close_app(data, "Image exported!");
+	return (1);
 }
 
 int			render(t_data *data)
@@ -118,6 +119,7 @@ int			render(t_data *data)
 	SDL_RenderClear(data->rend);
 	SDL_RenderCopy(data->rend, data->texture, NULL, NULL);
 	SDL_RenderPresent(data->rend);
+	return (1);
 }
 
 int			draw_grid(t_data *data)
@@ -143,6 +145,7 @@ int			draw_grid(t_data *data)
 int			pick_color(t_data *data, int x, int y)
 {
 	data->selected_color = data->pixel[SCREEN_W * y + x];
+	return (1);
 }
 
 int			set_pixel(t_data *data, int x, int y)
@@ -226,6 +229,7 @@ int			change_color(t_data *data, int wheel)
 	data->selected_color = rgb_add(data->selected_color, r, g, b);
 	rgb_split(data->selected_color, &r, &g, &b);
 	printf("New color is %d : %d : %d\n", r, g, b);
+	return (1);
 }
 
 int			event_handle(t_data *data)
