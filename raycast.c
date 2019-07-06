@@ -26,32 +26,37 @@ int		get_map(t_wf *data, int x, int y)
 **	hit_pos - position of hit obj.
 **	side - side of hit obj, value is between 0 and 3.
 */
-int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side)
+int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int mask)
 {
 	t_v2	dir;
 	float	step;
 	int		map_obj;
 
-	step = 0.1f;
 	hit_pos->x = data->pl->posx;
 	hit_pos->y = data->pl->posy;
 	dir = new_v2(cos(degtorad(angle)), -sin(degtorad(angle)));
-	dir.x *= step;
-	dir.y *= step;
 	*dist = 0;
-	while (*dist < pow(data->lov, 2))
+	while (*dist < SQLEN * 8)
 	{
+		if (*dist > SQLEN * 4)
+			step = 6.4f;
+		else if (*dist > SQLEN * 2)
+			step = .4f;
+		else if (*dist < SQLEN)
+			step = 0.1f;
+		else
+			step = 0.2f;
 		*dist += step;
-		hit_pos->x += dir.x;
-		hit_pos->y += dir.y;
-		map_obj = get_map(data, (hit_pos->x / 64), (hit_pos->y / 64));
-		if (map_obj == 1)
+		hit_pos->x += dir.x * step;
+		hit_pos->y += dir.y * step;
+		map_obj = get_map(data, (hit_pos->x / SQLEN), (hit_pos->y / SQLEN));
+		if (map_obj == mask || (map_obj && map_obj != 1 && mask == 0))
 		{
-			if ((int)(hit_pos->x - dir.x) / 64 > (int)hit_pos->x / 64)
+			if ((int)(hit_pos->x - dir.x) / SQLEN > (int)hit_pos->x / SQLEN)
 				*side = 0;
-			else if ((int)(hit_pos->x - dir.x) / 64 < (int)hit_pos->x / 64)
+			else if ((int)(hit_pos->x - dir.x) / SQLEN < (int)hit_pos->x / SQLEN)
 				*side = 1;
-			else if ((int)(hit_pos->y - dir.y) / 64 > (int)hit_pos->y / 64)
+			else if ((int)(hit_pos->y - dir.y) / SQLEN > (int)hit_pos->y / SQLEN)
 				*side = 2;
 			else
 				*side = 3;
@@ -78,19 +83,10 @@ void	draw_walls(t_wf *wf)
 	i = 0;
 	while (i < wf->width)
 	{
-		if (raycast(wf, omega, &dist, &hit, &side))
+		if (raycast(wf, omega, &dist, &hit, &side, 1))
 		{
-			if (side == 0)
-				color = 0xffffff;
-			if (side == 1)
-				color = 0xff0000;
-			if (side == 2)
-				color = 0x00ff00;
-			if (side == 3)
-				color = 0x0000ff;
 			dist = dist * cos(degtorad(omega - wf->pl->angle));
-			//fill_col(wf, i, dist, color);
-			draw_wall(wf, i, dist, side + 1, side > 1 ? wf->pl->posy : wf->pl->posx);
+			draw_wall(wf, i, dist, side + 1, side > 1 ? hit.x : hit.y);
 		}
 		omega -= wf->angw;
 		if (omega < 0)

@@ -83,6 +83,6 @@ int				rgb_multiply(int rgb, float value);
 void			draw_walls(t_wf *wf);
 void			update(t_wf *wf, int flag);
 void			draw_wall(t_wf *wf, int i, double dist, int check, double param);
-int				raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side);
+int				raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int mask);
 
 #endif

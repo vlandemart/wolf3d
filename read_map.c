@@ -102,15 +102,15 @@ int	**read_texture(char *file_name)
 	if (n <= 0)
 		return (NULL);
 	str = ft_strnew(0);
-	printf("Reading texture...\n");
+	//printf("Reading texture...\n");
 	while (get_next_line(n, &tmp) > 0)
 	{
 		str = ft_strjoinc(str, tmp);
 		str = ft_strjoinc(str, "\n");
 		ft_strdel(&tmp);
 	}
-	printf("Texture read.\n");
-	printf("Opening texture...\n");
+	//printf("Texture read.\n");
+	//printf("Opening texture...\n");
 	texture = (int**)malloc(sizeof(int*) * 32);
 	i = 0;
 	while (i < 32)
@@ -139,6 +139,6 @@ int	**read_texture(char *file_name)
 		n++;
 		i++;
 	}
-	printf("Texture loaded.\n");
+	printf("%s was loaded.\n", file_name);
 	return (texture);
 }

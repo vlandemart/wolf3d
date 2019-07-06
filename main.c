@@ -49,10 +49,10 @@ void	init_player(t_wf *wf)
 	wf->pl->fov = 60;
 	wf->pl->turn = 3;
 	wf->pl->speed = 3;
-	wf->lov = 4 * 64;
+	wf->lov = 4 * SQLEN;
 	wf->dist = ((double)wf->width / 2.0) / tan(degtorad(wf->pl->fov) / 2.0);
 	wf->angw = wf->pl->fov / wf->width;
-	wf->light_distance = 150.0f;
+	wf->light_distance = SQLEN * 2.5f;
 }
 
 void	init_textures(t_wf *wf)
@@ -146,27 +146,27 @@ int		render_walls(t_wf *wf, double omega, t_v2 *end, int i)
 	dist.x = 0.0;
 	dist.y = 0.0;
 
-	while (end->x >= 0 && end->y >= 0 && end->x < wf->map_size * 64 &&
-		end->y < wf->map_size * 64 &&
+	while (end->x >= 0 && end->y >= 0 && end->x < wf->map_size * SQLEN &&
+		end->y < wf->map_size * SQLEN &&
 		pow(dist.x, 2) + pow(dist.y, 2) < length)
 	{
-		if (wf->map[(int)(end->x / 64)][(int)(end->y / 64)] == 2 &&
-				(int)end->x % 64 < 40 && (int)end->x % 64 > 20 &&
-				(int)end->y % 64 < 40 && (int)end->y % 64 > 20)
+		if (wf->map[(int)(end->x / SQLEN)][(int)(end->y / SQLEN)] == 2 &&
+				(int)end->x % SQLEN < 40 && (int)end->x % SQLEN > 20 &&
+				(int)end->y % SQLEN < 40 && (int)end->y % SQLEN > 20)
 			ret++;
-		if (wf->map[(int)(end->x / 64)][(int)(end->y / 64)] == 1)
+		if (wf->map[(int)(end->x / SQLEN)][(int)(end->y / SQLEN)] == 1)
 		{
-			if ((int)(end->x - move.x) / 64 > (int)end->x / 64)
+			if ((int)(end->x - move.x) / SQLEN > (int)end->x / SQLEN)
 			{
 				send = end->y;
 				check = 1;
 			}
-			else if ((int)(end->x - move.x) / 64 < (int)end->x / 64)
+			else if ((int)(end->x - move.x) / SQLEN < (int)end->x / SQLEN)
 			{
 				send = end->y;
 				check = 2;
 			}
-			else if ((int)(end->y - move.y) / 64 > (int)end->y / 64)
+			else if ((int)(end->y - move.y) / SQLEN > (int)end->y / SQLEN)
 			{
 				send = end->x;
 				check = 3;
@@ -230,9 +230,9 @@ void	render_sprites(t_wf *wf, double omega, int sprites, t_v2 start, int i)
 	printf("%f %f %f %f -> %f %f\n", move.x, move.y, start.x, start.y, wf->pl->posx, wf->pl->posy);
 	while (sprites || (int)start.x != (int)wf->pl->posx || (int)start.y != (int)wf->pl->posy)
 	{
-		if (wf->map[(int)(start.x / 64)][(int)(start.y / 64)] == 2 &&
-				(int)start.x % 64 < 40 && (int)start.x % 64 > 20 &&
-				(int)start.y % 64 < 40 && (int)start.y % 64 > 20)
+		if (wf->map[(int)(start.x / SQLEN)][(int)(start.y / SQLEN)] == 2 &&
+				(int)start.x % SQLEN < 40 && (int)start.x % SQLEN > 20 &&
+				(int)start.y % SQLEN < 40 && (int)start.y % SQLEN > 20)
 		{
 			dist = sqrt(pow(start.x - wf->pl->posx, 2) + pow(start.y - wf->pl->posy, 2));
 			dist = fabs(dist * cos(degtorad(omega - wf->pl->angle)));
@@ -300,10 +300,10 @@ void movement(t_wf *wf)
             x = wf->pl->posx;
             y = wf->pl->posy;
             x -= cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
+            if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
                 x = wf->pl->posx;
             y += sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
+            if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
                 y = wf->pl->posy;
             wf->pl->posx = x;
             wf->pl->posy = y;
@@ -314,10 +314,10 @@ void movement(t_wf *wf)
             x = wf->pl->posx;
             y = wf->pl->posy;
             x += cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
+            if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
                 x = wf->pl->posx;
             y -= sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
+            if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
                 y = wf->pl->posy;
             wf->pl->posx = x;
             wf->pl->posy = y;
@@ -328,10 +328,10 @@ void movement(t_wf *wf)
 		x = wf->pl->posx;
 		y = wf->pl->posy;
 		x += cos(degtorad(wf->pl->angle + 90)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
+		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
         	x = wf->pl->posx;
 		y -= sin(degtorad(wf->pl->angle + 90)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
+		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
 			y = wf->pl->posy;
 		wf->pl->posx = x;
 		wf->pl->posy = y;
@@ -342,10 +342,10 @@ void movement(t_wf *wf)
 		x = wf->pl->posx;
 		y = wf->pl->posy;
 		x += cos(degtorad(wf->pl->angle - 90)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
+		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
         	x = wf->pl->posx;
 		y -= sin(degtorad(wf->pl->angle - 90)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * 64 || wf->map[(int)x / 64][(int)y / 64] == 1)
+		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
 			y = wf->pl->posy;
 		wf->pl->posx = x;
 		wf->pl->posy = y;
@@ -388,7 +388,7 @@ void	floor_and_ceiling(t_wf *data)
 		i++;
 	}
 	//floor
-	color = 0xffffff;
+	color = 0x909090;
 	i = data->height - 1;
 	while (i > data->height / 2)
 	{
@@ -480,7 +480,8 @@ int main(int ac, char **av)
 	prepare_window(wf);
 
 	floor_and_ceiling(wf);
-	render_all(wf);
+	draw_walls(wf);
+	//render_all(wf);
 
 	while (1)
 	{
@@ -489,7 +490,8 @@ int main(int ac, char **av)
             memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
             movement(wf);
 			floor_and_ceiling(wf);
-            render_all(wf);
+			draw_walls(wf);
+            //render_all(wf);
         }
 		handle_events(wf);
 	}
