@@ -60,7 +60,7 @@ void	init_textures(t_wf *wf)
 	wf->tx1 = read_texture("texture_creator/brick.wolf");
 	wf->tx2 = read_texture("texture_creator/brick2.wolf");
 	wf->tx3 = read_texture("texture_creator/wood1.wolf");
-	wf->tx4 = read_texture("texture_creator/img.wolf");
+	wf->tx4 = read_texture("texture_creator/img");
 }
 
 void     update(t_wf *wf, int flag)
