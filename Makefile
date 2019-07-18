@@ -11,7 +11,7 @@
 #******************************************************************************#
 
 NAME		= game
-CFLAGS		= -o1 -o2 -o3 #-Wall -Werror -Wextra
+CFLAGS		= -o3 #-Wall -Werror -Wextra
 FILES		= *.c
 INCLUDES	= include
 LIBFT		= 
