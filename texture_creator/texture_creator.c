@@ -356,7 +356,6 @@ int			main(int ac, char **av)
 	{
 		memset(data->pixel, 0x000000, SCREEN_W * SCREEN_H * sizeof(int));
 	}
-	draw_grid(data);
 	update(data);
 	return (1);
 }
