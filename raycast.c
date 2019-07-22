@@ -36,8 +36,10 @@ int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int
 	hit_pos->y = data->pl->posy;
 	dir = new_v2(cos(degtorad(angle)), -sin(degtorad(angle)));
 	*dist = 0;
+	step = 1;
 	while (*dist < SQLEN * 8)
 	{
+		/*
 		if (*dist > SQLEN * 4)
 			step = 6.4f;
 		else if (*dist > SQLEN * 2)
@@ -46,6 +48,7 @@ int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int
 			step = 0.1f;
 		else
 			step = 0.2f;
+		*/
 		*dist += step;
 		hit_pos->x += dir.x * step;
 		hit_pos->y += dir.y * step;
@@ -88,10 +91,14 @@ void	draw_walls(t_wf *wf)
 			dist = dist * cos(degtorad(omega - wf->pl->angle));
 			draw_wall(wf, i, dist, side + 1, side > 1 ? hit.x : hit.y);
 		}
+		else
+		{
+			wf->floor[i] = wf->height / 2;
+			wf->ceil[i] = wf->height / 2;
+		}
 		omega -= wf->angw;
 		if (omega < 0)
 			omega += 360;
 		i++;
 	}
-	update(wf, 0);
 }

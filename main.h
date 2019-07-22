@@ -59,6 +59,8 @@ typedef struct	s_wf
 	int		height;
 	int		**map;
 	int		map_size;
+	int		*floor;
+	int		*ceil;
 	int		dist;
 	int		lov;
 	double	angw;
@@ -74,6 +76,7 @@ typedef struct	s_wf
 	int		strafel;
 	float	light_distance;
 }				t_wf;
+
 double			degtorad(double deg);
 t_v2			new_v2(float x, float y);
 int				read_map(t_wf *data, char *file_name);

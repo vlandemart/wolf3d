@@ -45,7 +45,7 @@ void	init_player(t_wf *wf)
 	wf->pl = (t_pl*)malloc(sizeof(t_pl));
 	wf->pl->posx = 150;
 	wf->pl->posy = 150;
-	wf->pl->angle = 45;
+	wf->pl->angle = 0;
 	wf->pl->fov = 60;
 	wf->pl->turn = 3;
 	wf->pl->speed = 3;
@@ -112,6 +112,8 @@ void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
 	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
 	height = SQLEN * wf->dist / dist / 2;
 	tmp = (wf->height - height) / 2;
+	wf->floor[i] = tmp + height;
+	wf->ceil[i] = tmp;
 	j = 0;
 	while (j < wf->height)
 	{
@@ -251,6 +253,59 @@ void	render_sprites(t_wf *wf, double omega, int sprites, t_v2 start, int i)
 	(void)start;
 	*/
 // STOPPED HERE, TRY TO MAKE ALL SPRITES	
+}
+
+int	find_floor(t_wf *wf, double omega, double distfeet)
+{
+	double x;
+	double y;
+	double shading;
+	int x0;
+	int y0;
+
+	omega = wf->pl->angle - omega;
+	if (omega >= 360)
+		omega -= 360;
+	distfeet /= SQLEN / 2;
+	x = wf->pl->posx + (distfeet * cos(degtorad(omega)));
+	y = wf->pl->posy + (distfeet * -sin(degtorad(omega)));
+	x0 = (int)x % (SQLEN / 2);
+	y0 = (int)y % (SQLEN / 2);
+	if (x0 < 0)
+		x0 += 32;
+	if (x0 >= 32)
+		x0 -= 32;
+	if (y0 >= 32)
+		y0 -= 32;
+	if (y0 < 0)
+		y0 += 32;
+	shading = 1 - (MIN(distfeet, wf->light_distance) / wf->light_distance);
+	return (rgb_multiply(wf->tx2[x0][y0], shading));
+}
+
+void	draw_floor(t_wf *wf)
+{
+	int i;
+	int j;
+	double distfeet;
+	double height;
+	double omega;
+
+	height = wf->height / 2;
+	omega = -(wf->pl->fov / 2);
+	i = 0;
+	while (i < wf->width)
+	{
+		j = wf->floor[i];
+		while (j < wf->height)
+		{
+			distfeet = (height * wf->dist) / ((j - wf->height / 2) * cos(degtorad(omega)));
+			wf->sdl->pix[i + j * wf->width] = find_floor(wf, omega, distfeet);//0xffffff;
+			j++;
+		}
+		i++;
+		omega += wf->angw;
+	}
 }
 
 void	render_all(t_wf *wf)
@@ -397,6 +452,7 @@ void	floor_and_ceiling(t_wf *data)
 		while (j < data->width)
 		{
 			data->sdl->pix[i * data->width + j] = rgb_multiply(color, br);
+	//render_all(wf);
 			j++;
 		}
 		i--;
@@ -476,11 +532,15 @@ int main(int ac, char **av)
 
 	init_textures(wf);
 
+	wf->floor = (int*)malloc(sizeof(int) * wf->width);
+	wf->ceil = (int*)malloc(sizeof(int) * wf->width);
+
 	wf->sdl = (t_sdl*)malloc(sizeof(t_sdl));
 	prepare_window(wf);
 
 	floor_and_ceiling(wf);
 	draw_walls(wf);
+	draw_floor(wf);
 	//render_all(wf);
 
 	while (1)
@@ -491,6 +551,8 @@ int main(int ac, char **av)
             movement(wf);
 			floor_and_ceiling(wf);
 			draw_walls(wf);
+			draw_floor(wf);
+			update(wf, 0);
             //render_all(wf);
         }
 		handle_events(wf);
