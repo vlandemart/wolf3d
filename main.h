@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/03 15:38:36 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/24 20:47:41 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ typedef struct	s_pl
 	double	posy;
 	double	angle;
 	double	fov;
+	double	height;
 	int     speed;
 	int     turn;
 }				t_pl;
