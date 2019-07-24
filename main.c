@@ -87,6 +87,11 @@ int		close_app_s(t_wf *wf, char *str)
 	return (1);
 }
 
+double	radtodeg(double rad)
+{
+	return (rad * (180 / M_PI));
+}
+
 double	degtorad(double deg)
 {
 	return (deg * (M_PI / 180));
@@ -100,6 +105,9 @@ void	put_pixel(t_wf *wf, int index, int color, double dist)
 
 	if (color == 0xff00ff)
 		return;
+	if (wf->zbuf[index] > dist)
+		return;
+	wf->zbuf[index] = dist;
 	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
 	wf->sdl->pix[index] = rgb_multiply(color, shading);
 }
@@ -538,6 +546,8 @@ int main(int ac, char **av)
 		init_map(wf);
 	}
 
+	wf->zbuf = malloc(sizeof(int) * wf->width * wf->height);
+
 	init_player(wf);
 
 	init_textures(wf);
@@ -558,10 +568,13 @@ int main(int ac, char **av)
 	    if (wf->strafel || wf->strafer || wf->down || wf->up || wf->right || wf->left)
         {
             memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
+			//Reset z-buf
+			memset(wf->zbuf, 0, wf->width * wf->height * sizeof(int));
             movement(wf);
 			floor_and_ceiling(wf);
 			draw_walls(wf);
 			draw_floor(wf);
+			draw_objects(wf);
 			update(wf, 0);
             //render_all(wf);
         }

@@ -36,10 +36,9 @@ int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int
 	hit_pos->y = data->pl->posy;
 	dir = new_v2(cos(degtorad(angle)), -sin(degtorad(angle)));
 	*dist = 0;
-	step = 1;
+	//step = 1;
 	while (*dist < SQLEN * 8)
 	{
-		/*
 		if (*dist > SQLEN * 4)
 			step = 6.4f;
 		else if (*dist > SQLEN * 2)
@@ -48,7 +47,6 @@ int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int
 			step = 0.1f;
 		else
 			step = 0.2f;
-		*/
 		*dist += step;
 		hit_pos->x += dir.x * step;
 		hit_pos->y += dir.y * step;
@@ -100,5 +98,35 @@ void	draw_walls(t_wf *wf)
 		if (omega < 0)
 			omega += 360;
 		i++;
+	}
+}
+
+void	draw_objects(t_wf *wf)
+{
+	t_list	*objs;
+	t_obj	*obj;
+
+	objs = wf->objects;
+	while (objs != NULL)
+	{
+		obj = (t_obj*)(objs->content);
+
+		printf("=====\n");
+		printf("sprite x %f, sprite y %f\n", obj->pos.x, obj->pos.y);
+
+		float dx = (obj->pos.x + 0.5f) * SQLEN - wf->pl->posx;
+		float dy = (obj->pos.y + 0.5f) * SQLEN - wf->pl->posy;
+		float dist = sqrt(dx * dx + dy * dy);
+		printf("dx %f, dy %f, dist %f\n", dx, dy, dist);
+		
+
+		float angle = atan2(dy, dx) - degtorad(wf->pl->angle);
+		float size = wf->dist / (cos(angle) * dist);
+		printf("angle %f, size %f\n", radtodeg(angle), size);
+
+		int x = (int)(tan(angle) * wf->dist);
+		printf("sprite x on screen: %d\n", x);
+
+		objs = objs->next;
 	}
 }
