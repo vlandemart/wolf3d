@@ -51,6 +51,15 @@ typedef struct	s_sdl
 	Uint32			*pix;
 }				t_sdl;
 
+typedef struct	s_obj
+{
+	t_v2	pos;
+	int		passable;
+	int		type;
+	void	*on_col;
+	int		**texture;
+}				t_obj;
+
 typedef struct	s_wf
 {
 	t_sdl	*sdl;
@@ -75,6 +84,7 @@ typedef struct	s_wf
 	int		strafer;
 	int		strafel;
 	float	light_distance;
+	t_list	*objects;
 }				t_wf;
 
 double			degtorad(double deg);

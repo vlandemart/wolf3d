@@ -92,13 +92,24 @@ double	degtorad(double deg)
 	return (deg * (M_PI / 180));
 }
 
+//Extracted it into separate method so we have some control over
+//it - we can easily add transparency, shading and z-buffer
+void	put_pixel(t_wf *wf, int index, int color, double dist)
+{
+	float shading;
+
+	if (color == 0xff00ff)
+		return;
+	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
+	wf->sdl->pix[index] = rgb_multiply(color, shading);
+}
+
 void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
 {
 	int j;
 	int	height;
 	int	tmp;
 	int		**txt;
-	float shading;
 	double	percent;
 
 	if (check == 1)
@@ -109,7 +120,6 @@ void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
 		txt = wf->tx3;
 	else if (check == 4)
 		txt = wf->tx4;
-	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
 	height = SQLEN * wf->dist / dist / 2;
 	tmp = (wf->height - height) / 2;
 	wf->floor[i] = tmp + height;
@@ -120,7 +130,7 @@ void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
 		if (j > tmp && j < tmp + height)
 		{
 			percent = (double)(j - tmp) / (double)height;
-			wf->sdl->pix[i + wf->width * j] = rgb_multiply(txt[(int)param % 32][(int)(32.0 * percent)], shading);
+			put_pixel(wf, i + wf->width * j, txt[(int)param % 32][(int)(32.0 * percent)], dist);
 		}
 		j++;
 	}

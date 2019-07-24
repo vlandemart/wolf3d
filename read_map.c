@@ -9,11 +9,29 @@ t_v2	new_v2(float x, float y)
 	return (v2);
 }
 
+int		create_obj(t_wf *wf, int x, int y, int type)
+{
+	t_obj *obj;
+
+	obj = (t_obj*)malloc(sizeof(t_obj));
+	obj->pos = new_v2(x, y);
+	if (type == 2)
+	{
+		obj->texture = read_texture("texture_creator/box.wolf");
+		obj->on_col = NULL;
+		obj->passable = 1;
+	}
+	//TODO: put created object into wf->objects
+	ft_lstadd(&wf->objects, ft_lstnew(obj, sizeof(t_obj)));
+	return (1);
+}
+
 int		bind_map(t_wf *data, char *map)
 {
 	int i;
 	int j;
 	int n;
+	int type;
 
 	//Allocate array
 	printf("Allocating map...\n");
@@ -36,8 +54,10 @@ int		bind_map(t_wf *data, char *map)
 		{
 			if (ft_isdigit(map[n]))
 			{
-				//printf("Binding map value in %d:%d to %d\n", i, j, map[n]);
-				data->map[i][j] = map[n] - '0';
+				type = map[n] - '0';
+				if (type > 1)
+					create_obj(data, i, j, type);
+				data->map[i][j] = type;
 			}
 			n++;
 			j++;
@@ -47,6 +67,7 @@ int		bind_map(t_wf *data, char *map)
 		n++;
 		i++;
 	}
+	printf("Objects detected on map: %d\n", ft_lstcount(data->objects));
 	return (1);
 }
 
