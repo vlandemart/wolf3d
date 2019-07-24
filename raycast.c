@@ -6,7 +6,7 @@
 /*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/03 15:17:55 by njacobso          #+#    #+#             */
-/*   Updated: 2019/07/03 15:17:56 by njacobso         ###   ########.fr       */
+/*   Updated: 2019/07/24 19:01:02 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int
 		else
 			step = 0.2f;
 		*dist += step;
+		if (*dist >= data->light_distance)
+			return (0);
 		hit_pos->x += dir.x * step;
 		hit_pos->y += dir.y * step;
 		map_obj = get_map(data, (hit_pos->x / SQLEN), (hit_pos->y / SQLEN));
@@ -76,7 +78,6 @@ void	draw_walls(t_wf *wf)
 	t_v2	hit;
 	float	omega;
 	int		side;
-	int		color;
 
 	omega = wf->pl->angle + wf->pl->fov / 2;
 	if (omega >= 360)
