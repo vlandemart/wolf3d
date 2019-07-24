@@ -102,6 +102,30 @@ void	draw_walls(t_wf *wf)
 	}
 }
 
+void	draw_object(t_wf *wf, t_obj obj, int x, int dist, float size)
+{
+	int i;
+	int j;
+	int ex;
+	int ey;
+	int y = (wf->height - 32 * size) / 2;
+
+	ex = x + 32 * size;
+	ey = y + 32 * size;
+	i = y;
+	while (i < ey)
+	{
+		j = x;
+		while (j < ex)
+		{
+			put_pixel(wf, j + wf->width * i, 0xff0000, dist);
+			//put_pixel(wf, j + wf->width * i, obj.texture[(int)(32 * ((float)j / (float)ex))][(int)(32 * ((float)i / (float)ey))], dist);
+			j++;
+		}
+		i++;
+	}
+}
+
 void	draw_objects(t_wf *wf)
 {
 	t_list	*objs;
@@ -113,20 +137,26 @@ void	draw_objects(t_wf *wf)
 		obj = (t_obj*)(objs->content);
 
 		printf("=====\n");
-		printf("sprite x %f, sprite y %f\n", obj->pos.x, obj->pos.y);
-
 		float dx = (obj->pos.x + 0.5f) * SQLEN - wf->pl->posx;
 		float dy = (obj->pos.y + 0.5f) * SQLEN - wf->pl->posy;
 		float dist = sqrt(dx * dx + dy * dy);
 		printf("dx %f, dy %f, dist %f\n", dx, dy, dist);
-		
 
-		float angle = atan2(dy, dx) - degtorad(wf->pl->angle);
-		float size = wf->dist / (cos(angle) * dist);
-		printf("angle %f, size %f\n", radtodeg(angle), size);
+		float angle = atan2(dx, dy) - degtorad(wf->pl->angle);
+		if (angle < -M_PI)
+			angle += 2.0 * M_PI;
+		if (angle > M_PI)
+			angle -= 2.0 * M_PI;
+		angle -= M_PI / 2;
+		printf("spr_angle %f, pl_angle %f\n", radtodeg(atan2(dy, dx)), wf->pl->angle);
+		printf("result angle %f\n", radtodeg(angle));
 
-		int x = (int)(tan(angle) * wf->dist);
-		printf("sprite x on screen: %d\n", x);
+		if (fabs(radtodeg(angle)) > (wf->pl->fov / 2))
+			return ;
+		int x = wf->width / 2 - tan(angle) * wf->dist;
+		float size = (float)wf->dist / (cos(angle) * dist);
+		printf("sprite x on screen: %d, size %f\n", x, size);
+		draw_object(wf, *obj, x, dist, size);
 
 		objs = objs->next;
 	}

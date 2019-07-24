@@ -104,9 +104,11 @@ void	put_pixel(t_wf *wf, int index, int color, double dist)
 {
 	float shading;
 
+	if (index < 0 || index > wf->height * wf->width)
+		return ;
 	if (color == 0xff00ff)
 		return;
-	if (wf->zbuf[index] > dist)
+	if (wf->zbuf[index] != 0 && wf->zbuf[index] < dist)
 		return;
 	wf->zbuf[index] = dist;
 	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);

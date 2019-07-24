@@ -101,5 +101,6 @@ void			update(t_wf *wf, int flag);
 void			draw_wall(t_wf *wf, int i, double dist, int check, double param);
 void			draw_objects(t_wf *wf);
 int				raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int mask);
+void			put_pixel(t_wf *wf, int index, int color, double dist);
 
 #endif
