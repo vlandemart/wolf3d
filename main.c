@@ -49,6 +49,7 @@ void	init_player(t_wf *wf)
 	wf->pl->fov = 60;
 	wf->pl->turn = 3;
 	wf->pl->speed = 3;
+	wf->pl->height = wf->height / 2;
 	wf->lov = 4 * SQLEN;
 	wf->dist = ((double)wf->width / 2.0) / tan(degtorad(wf->pl->fov) / 2.0);
 	wf->angw = wf->pl->fov / wf->width;
@@ -144,133 +145,6 @@ void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
 	}
 }
 
-int		render_walls(t_wf *wf, double omega, t_v2 *end, int i)
-{
-    int check;
-	int ret;
-    t_v2	dist;
-	t_v2	move;
-	double towall;
-	double length;
-	double	send;
-
-    length = pow(wf->lov, 2);
-	check = 0;
-	ret = 0;
-	end->x = wf->pl->posx;
-	end->y = wf->pl->posy;
-	move.x = cos(degtorad(omega));
-	move.y = -sin(degtorad(omega));
-	dist.x = 0.0;
-	dist.y = 0.0;
-
-	while (end->x >= 0 && end->y >= 0 && end->x < wf->map_size * SQLEN &&
-		end->y < wf->map_size * SQLEN &&
-		pow(dist.x, 2) + pow(dist.y, 2) < length)
-	{
-		if (wf->map[(int)(end->x / SQLEN)][(int)(end->y / SQLEN)] == 2 &&
-				(int)end->x % SQLEN < 40 && (int)end->x % SQLEN > 20 &&
-				(int)end->y % SQLEN < 40 && (int)end->y % SQLEN > 20)
-			ret++;
-		if (wf->map[(int)(end->x / SQLEN)][(int)(end->y / SQLEN)] == 1)
-		{
-			if ((int)(end->x - move.x) / SQLEN > (int)end->x / SQLEN)
-			{
-				send = end->y;
-				check = 1;
-			}
-			else if ((int)(end->x - move.x) / SQLEN < (int)end->x / SQLEN)
-			{
-				send = end->y;
-				check = 2;
-			}
-			else if ((int)(end->y - move.y) / SQLEN > (int)end->y / SQLEN)
-			{
-				send = end->x;
-				check = 3;
-			}
-			else
-			{
-				send = end->x;
-				check = 4;
-			}
-			break ;
-		}
-		end->x += move.x;
-		end->y += move.y;
-		dist.x += move.x;
-		dist.y += move.y;
-	}
-
-	towall = sqrt(pow(dist.x, 2) + pow(dist.y, 2));
-	towall = fabs(towall * cos(degtorad(omega - wf->pl->angle)));
-	if (check)
-		draw_wall(wf, i, towall, check, send);
-	return (ret);
-}
-
-void	draw_sprite(t_wf *wf, int i, double dist)
-{
-	int col;
-	int j;
-	double shading;
-	int		height;
-	int		tmp;
-
-	col = 0xffffff;
-	j = 0;
-	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
-	height = SQLEN * wf->dist / dist / 2;
-	tmp = (wf->height - height) / 4;
-	while (j < wf->height)
-	{
-		if (j > tmp * 3 && j < tmp * 4)
-			wf->sdl->pix[i + wf->width * j] = rgb_multiply(col, shading);
-		j++;
-	}
-}
-
-void	render_sprites(t_wf *wf, double omega, int sprites, t_v2 start, int i)
-{
-	(void)wf;
-	(void)omega;
-	(void)sprites;
-	(void)start;
-	(void)i;
-
-/*  
-	// IT IS FULL OF SHIT! I'LL MAKE A GOOD VERSION WHEN I FIGURE OUT A BETTER WAY TO DO IT
-	t_v2 move;
-	double dist;
-
-	move.x = cos(degtorad(omega));
-	move.y = -sin(degtorad(omega));
-	printf("%f %f %f %f -> %f %f\n", move.x, move.y, start.x, start.y, wf->pl->posx, wf->pl->posy);
-	while (sprites || (int)start.x != (int)wf->pl->posx || (int)start.y != (int)wf->pl->posy)
-	{
-		if (wf->map[(int)(start.x / SQLEN)][(int)(start.y / SQLEN)] == 2 &&
-				(int)start.x % SQLEN < 40 && (int)start.x % SQLEN > 20 &&
-				(int)start.y % SQLEN < 40 && (int)start.y % SQLEN > 20)
-		{
-			dist = sqrt(pow(start.x - wf->pl->posx, 2) + pow(start.y - wf->pl->posy, 2));
-			dist = fabs(dist * cos(degtorad(omega - wf->pl->angle)));
-			draw_sprite(wf, i, dist);
-			sprites--;
-		}
-		start.x -= move.x;
-		start.y -= move.y;
-	}
-*/
-
-	/*
-	(void)wf;
-	(void)omega;
-	(void)sprites;
-	(void)start;
-	*/
-// STOPPED HERE, TRY TO MAKE ALL SPRITES	
-}
-
 int	find_floor(t_wf *wf, double omega, double distfeet)
 {
 	double x;
@@ -282,19 +156,18 @@ int	find_floor(t_wf *wf, double omega, double distfeet)
 	omega = wf->pl->angle - omega;
 	if (omega >= 360)
 		omega -= 360;
-	distfeet /= SQLEN / 2;
 	x = wf->pl->posx + (distfeet * cos(degtorad(omega)));
 	y = wf->pl->posy + (distfeet * -sin(degtorad(omega)));
 	x0 = (int)x % (SQLEN / 2);
 	y0 = (int)y % (SQLEN / 2);
 	if (x0 < 0)
-		x0 += 32;
-	if (x0 >= 32)
-		x0 -= 32;
-	if (y0 >= 32)
-		y0 -= 32;
-	if (y0 < 0)
-		y0 += 32;
+		x0 += SQLEN / 2;
+	else if (x0 >= SQLEN / 2)
+		x0 -= SQLEN / 2;
+	if (y0 >= SQLEN / 2)
+		y0 -= SQLEN / 2;
+	else if (y0 < 0)
+		y0 += SQLEN / 2;
 	shading = 1 - (MIN(distfeet, wf->light_distance) / wf->light_distance);
 	return (rgb_multiply(wf->tx2[x0][y0], shading));
 }
@@ -310,7 +183,6 @@ int find_ceil(t_wf *wf, double omega, double distfeet)
 	omega = wf->pl->angle - omega;
 	if (omega >= 360)
 		omega -= 360;
-	distfeet /= SQLEN / 2;
 	x = wf->pl->posx + (distfeet * cos(degtorad(omega)));
 	y = wf->pl->posy + (distfeet * -sin(degtorad(omega)));
 	x0 = (int)x % (SQLEN / 2);
@@ -332,10 +204,8 @@ void	draw_ceiling(t_wf *wf)
 	int i;
 	int j;
 	double distfeet;
-	double height;
 	double omega;
 
-	height = wf->height / 2;
 	omega = -(wf->pl->fov / 2);
 	i = 0;
 	while (i < wf->width)
@@ -343,7 +213,8 @@ void	draw_ceiling(t_wf *wf)
 		j = 0;
 		while (j < wf->ceil[i])
 		{
-			distfeet = (height * wf->dist) / ((wf->height / 2 - j) * cos(degtorad(omega)));
+			distfeet = (wf->pl->height * wf->dist) /
+				((wf->height / 2 - j) * (SQLEN / 2) * cos(degtorad(omega)));
 			wf->sdl->pix[i + j * wf->width] = find_ceil(wf, omega, distfeet);
 			j++;
 		}
@@ -357,10 +228,8 @@ void	draw_floor(t_wf *wf)
 	int i;
 	int j;
 	double distfeet;
-	double height;
 	double omega;
-
-	height = wf->height / 2;
+	
 	omega = -(wf->pl->fov / 2);
 	i = 0;
 	while (i < wf->width)
@@ -368,38 +237,14 @@ void	draw_floor(t_wf *wf)
 		j = wf->floor[i];
 		while (j < wf->height)
 		{
-			distfeet = (height * wf->dist) / ((j - wf->height / 2) * cos(degtorad(omega)));
-			wf->sdl->pix[i + j * wf->width] = find_floor(wf, omega, distfeet);//0xffffff;
+			distfeet = (wf->pl->height * wf->dist) /
+				((j - wf->height / 2) * (SQLEN / 2) * cos(degtorad(omega)));
+			wf->sdl->pix[i + j * wf->width] = find_floor(wf, omega, distfeet);
 			j++;
 		}
 		i++;
 		omega += wf->angw;
 	}
-}
-
-void	render_all(t_wf *wf)
-{
-	int		i;
-	int		sprites;
-	double	omega;
-	t_v2	end;
-
-	i = 0;
-    omega = wf->pl->angle + wf->pl->fov / 2;
-    if (omega >= 360)
-        omega -= 360;
-	//draw_walls(wf);
-	while (i < wf->width)
-	{
-		end.x = 0;
-		end.y = 0;
-		sprites = render_walls(wf, omega, &end, i);
-		if (sprites)
-			render_sprites(wf, omega, sprites, end, i);
-		i++;
-		omega -= wf->angw;
-	}
-	update(wf, 0);
 }
 
 void	prepare_window(t_wf *wf)
@@ -416,36 +261,36 @@ void	prepare_window(t_wf *wf)
 
 void movement(t_wf *wf)
 {
-    double x;
-    double y;
+	double x;
+	double y;
 
-    if (wf->down)
-        {
-            x = wf->pl->posx;
-            y = wf->pl->posy;
-            x -= cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-                x = wf->pl->posx;
-            y += sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-                y = wf->pl->posy;
-            wf->pl->posx = x;
-            wf->pl->posy = y;
-        }
+	if (wf->down)
+	{
+		x = wf->pl->posx;
+		y = wf->pl->posy;
+		x -= cos(degtorad(wf->pl->angle)) * wf->pl->speed;
+		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+			x = wf->pl->posx;
+		y += sin(degtorad(wf->pl->angle)) * wf->pl->speed;
+		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+			y = wf->pl->posy;
+		wf->pl->posx = x;
+		wf->pl->posy = y;
+	}
 
 	if (wf->up)
-        {
-            x = wf->pl->posx;
-            y = wf->pl->posy;
-            x += cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-                x = wf->pl->posx;
-            y -= sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-            if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-                y = wf->pl->posy;
-            wf->pl->posx = x;
-            wf->pl->posy = y;
-        }
+	{
+		x = wf->pl->posx;
+		y = wf->pl->posy;
+		x += cos(degtorad(wf->pl->angle)) * wf->pl->speed;
+		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+			x = wf->pl->posx;
+		y -= sin(degtorad(wf->pl->angle)) * wf->pl->speed;
+		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+			y = wf->pl->posy;
+		wf->pl->posx = x;
+		wf->pl->posy = y;
+	}
 
 	if (wf->strafel)
 	{
