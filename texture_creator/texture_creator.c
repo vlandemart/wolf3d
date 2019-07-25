@@ -344,7 +344,7 @@ int			main(int ac, char **av)
 
 	data = init_sdl();
 	printf("======\n");
-	printf("Usage: \n Hold 1-3 and scroll mouse to modify rgb channels \n Hold 4 and scroll mouse to darken/lighten current color \n LMB presses selected color, RMB copies color under cursor \n Press Space to renew image's grid \n Press L to export image. Image name is set in opening argument\n If image with that name exists, opens it instead\n");
+	printf("Usage: \n Hold 1-3 and scroll mouse to modify rgb channels \n Hold 4 and scroll mouse to darken/lighten current color \n LMB presses selected color, RMB copies color under cursor \n Press Space to renew image's grid \n Press L or KP_Plus to export image. Image name is set in opening argument\n If image with that name exists, opens it instead\n");
 	printf("======\n");
 	if (ac == 2)
 	{

@@ -110,16 +110,24 @@ void	draw_object(t_wf *wf, t_obj obj, int x, int dist, float size)
 	int ey;
 	int y = (wf->height - 32 * size) / 2;
 
+	x -= 16 * size;
 	ex = x + 32 * size;
 	ey = y + 32 * size;
 	i = y;
-	while (i < ey)
+	while (i < ey && i < wf->height)
 	{
 		j = x;
 		while (j < ex)
 		{
-			put_pixel(wf, j + wf->width * i, 0xff0000, dist);
-			//put_pixel(wf, j + wf->width * i, obj.texture[(int)(32 * ((float)j / (float)ex))][(int)(32 * ((float)i / (float)ey))], dist);
+			if (j > 0 && j < wf->width)
+			{
+				int a = (j - x) / size;
+				int b = (i - y) / size;
+				//printf("x %d, y %d\n", a, b);
+				put_pixel(wf, j + wf->width * i, obj.texture[a][b], dist);
+				//put_pixel(wf, j + wf->width * i, obj.texture[(int)(32 * ((float)j / (float)ex))][(int)(32 * ((float)i / (float)ey))], dist);
+				//put_pixel(wf, j + wf->width * i, 0xff0000, dist);
+			}
 			j++;
 		}
 		i++;
@@ -136,11 +144,11 @@ void	draw_objects(t_wf *wf)
 	{
 		obj = (t_obj*)(objs->content);
 
-		printf("=====\n");
+		//printf("=====\n");
 		float dx = (obj->pos.x + 0.5f) * SQLEN - wf->pl->posx;
 		float dy = (obj->pos.y + 0.5f) * SQLEN - wf->pl->posy;
 		float dist = sqrt(dx * dx + dy * dy);
-		printf("dx %f, dy %f, dist %f\n", dx, dy, dist);
+		//printf("dx %f, dy %f, dist %f\n", dx, dy, dist);
 
 		float angle = atan2(dx, dy) - degtorad(wf->pl->angle);
 		if (angle < -M_PI)
@@ -148,15 +156,16 @@ void	draw_objects(t_wf *wf)
 		if (angle > M_PI)
 			angle -= 2.0 * M_PI;
 		angle -= M_PI / 2;
-		printf("spr_angle %f, pl_angle %f\n", radtodeg(atan2(dy, dx)), wf->pl->angle);
-		printf("result angle %f\n", radtodeg(angle));
+		//printf("spr_angle %f, pl_angle %f\n", radtodeg(atan2(dy, dx)), wf->pl->angle);
+		//printf("result angle %f\n", radtodeg(angle));
 
-		if (fabs(radtodeg(angle)) > (wf->pl->fov / 2))
-			return ;
-		int x = wf->width / 2 - tan(angle) * wf->dist;
-		float size = (float)wf->dist / (cos(angle) * dist);
-		printf("sprite x on screen: %d, size %f\n", x, size);
-		draw_object(wf, *obj, x, dist, size);
+		if (fabs(radtodeg(angle)) <= (wf->pl->fov / 2 + 10))
+		{
+			int x = wf->width / 2 - tan(angle) * wf->dist;
+			float size = (float)wf->dist / (cos(angle) * dist);
+			//printf("sprite x on screen: %d, size %f\n", x, size);
+			draw_object(wf, *obj, x, dist, size);
+		}
 
 		objs = objs->next;
 	}

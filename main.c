@@ -43,8 +43,8 @@ void	init_map(t_wf *wf)
 void	init_player(t_wf *wf)
 {
 	wf->pl = (t_pl*)malloc(sizeof(t_pl));
-	wf->pl->posx = 150;
-	wf->pl->posy = 150;
+	wf->pl->posx = 128;
+	wf->pl->posy = 128;
 	wf->pl->angle = 0;
 	wf->pl->fov = 60;
 	wf->pl->turn = 3;
@@ -61,7 +61,7 @@ void	init_textures(t_wf *wf)
 	wf->tx1 = read_texture("texture_creator/brick.wolf");
 	wf->tx2 = read_texture("texture_creator/wood.wolf");
 	wf->tx3 = read_texture("texture_creator/stone.wolf");
-	wf->tx4 = read_texture("texture_creator/box.wolf");
+	wf->tx4 = read_texture("texture_creator/img.wolf");
 }
 
 void     update(t_wf *wf, int flag)
@@ -117,9 +117,9 @@ void	put_pixel(t_wf *wf, int index, int color, double dist)
 
 void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
 {
-	int j;
-	int	height;
-	int	tmp;
+	int		j;
+	int		height;
+	int		tmp;
 	int		**txt;
 	double	percent;
 

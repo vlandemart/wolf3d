@@ -19,9 +19,21 @@ int		create_obj(t_wf *wf, int x, int y, int type)
 	{
 		obj->texture = read_texture("texture_creator/box.wolf");
 		obj->on_col = NULL;
+		obj->passable = 0;
+	}
+	if (type == 3)
+	{
+		obj->texture = read_texture("texture_creator/lamp.wolf");
+		obj->on_col = NULL;
 		obj->passable = 1;
 	}
-	//TODO: put created object into wf->objects
+	if (type == 4)
+	{
+		obj->texture = read_texture("texture_creator/health.wolf");
+		obj->on_col = NULL;
+		obj->passable = 1;
+	}
+
 	ft_lstadd(&wf->objects, ft_lstnew(obj, sizeof(t_obj)));
 	return (1);
 }
