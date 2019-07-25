@@ -43,12 +43,12 @@ void	init_map(t_wf *wf)
 void	init_player(t_wf *wf)
 {
 	wf->pl = (t_pl*)malloc(sizeof(t_pl));
-	wf->pl->posx = 128;
-	wf->pl->posy = 128;
+	wf->pl->pos.x = 128;
+	wf->pl->pos.y = 128;
 	wf->pl->angle = 0;
 	wf->pl->fov = 60;
-	wf->pl->turn = 3;
-	wf->pl->speed = 3;
+	wf->pl->turn = 90;
+	wf->pl->speed = 90;
 	wf->pl->height = wf->height / 2;
 	wf->lov = 4 * SQLEN;
 	wf->dist = ((double)wf->width / 2.0) / tan(degtorad(wf->pl->fov) / 2.0);
@@ -100,7 +100,7 @@ double	degtorad(double deg)
 
 //Extracted it into separate method so we have some control over
 //it - we can easily add transparency, shading and z-buffer
-void	put_pixel(t_wf *wf, int index, int color, double dist)
+void	put_pixel(t_wf *wf, int index, int color, double dist, int zbuf)
 {
 	float shading;
 
@@ -108,9 +108,12 @@ void	put_pixel(t_wf *wf, int index, int color, double dist)
 		return ;
 	if (color == 0xff00ff)
 		return;
-	if (wf->zbuf[index] != 0 && wf->zbuf[index] < dist)
-		return;
-	wf->zbuf[index] = dist;
+	if (zbuf)
+	{
+		if (wf->zbuf[index] != 0 && wf->zbuf[index] < dist)
+			return;
+		wf->zbuf[index] = dist;
+	}
 	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
 	wf->sdl->pix[index] = rgb_multiply(color, shading);
 }
@@ -141,7 +144,7 @@ void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
 		if (j > tmp && j < tmp + height)
 		{
 			percent = (double)(j - tmp) / (double)height;
-			put_pixel(wf, i + wf->width * j, txt[(int)param % 32][(int)(32.0 * percent)], dist);
+			put_pixel(wf, i + wf->width * j, txt[(int)param % 32][(int)(32.0 * percent)], dist, 1);
 		}
 		j++;
 	}
@@ -151,15 +154,14 @@ int	find_floor(t_wf *wf, double omega, double distfeet)
 {
 	double x;
 	double y;
-	double shading;
 	int x0;
 	int y0;
 
 	omega = wf->pl->angle - omega;
 	if (omega >= 360)
 		omega -= 360;
-	x = wf->pl->posx + (distfeet * cos(degtorad(omega)));
-	y = wf->pl->posy + (distfeet * -sin(degtorad(omega)));
+	x = wf->pl->pos.x + (distfeet * cos(degtorad(omega)));
+	y = wf->pl->pos.y + (distfeet * -sin(degtorad(omega)));
 	x0 = (int)x % (SQLEN / 2);
 	y0 = (int)y % (SQLEN / 2);
 	if (x0 < 0)
@@ -170,8 +172,7 @@ int	find_floor(t_wf *wf, double omega, double distfeet)
 		y0 -= SQLEN / 2;
 	else if (y0 < 0)
 		y0 += SQLEN / 2;
-	shading = 1 - (MIN(distfeet, wf->light_distance) / wf->light_distance);
-	return (rgb_multiply(wf->tx2[x0][y0], shading));
+	return (wf->tx2[x0][y0]);
 }
 
 int find_ceil(t_wf *wf, double omega, double distfeet)
@@ -185,18 +186,18 @@ int find_ceil(t_wf *wf, double omega, double distfeet)
 	omega = wf->pl->angle - omega;
 	if (omega >= 360)
 		omega -= 360;
-	x = wf->pl->posx + (distfeet * cos(degtorad(omega)));
-	y = wf->pl->posy + (distfeet * -sin(degtorad(omega)));
+	x = wf->pl->pos.x + (distfeet * cos(degtorad(omega)));
+	y = wf->pl->pos.y + (distfeet * -sin(degtorad(omega)));
 	x0 = (int)x % (SQLEN / 2);
 	y0 = (int)y % (SQLEN / 2);
 	if (x0 < 0)
 		x0 += SQLEN / 2;
 	else if (x0 >= SQLEN / 2)
 		x0 -= SQLEN / 2;
-	if (y0 < 0)
-		y0 += SQLEN / 2;
-	else if (y0 >= SQLEN / 2)
+	if (y0 >= SQLEN / 2)
 		y0 -= SQLEN / 2;
+	else if (y0 < 0)
+		y0 += SQLEN / 2;
 	shading = 1 - (MIN(distfeet, wf->light_distance) / wf->light_distance);
 	return (rgb_multiply(wf->tx3[x0][y0], shading));
 }
@@ -241,7 +242,7 @@ void	draw_floor(t_wf *wf)
 		{
 			distfeet = (wf->pl->height * wf->dist) /
 				((j - wf->height / 2) * (SQLEN / 2) * cos(degtorad(omega)));
-			wf->sdl->pix[i + j * wf->width] = find_floor(wf, omega, distfeet);
+			put_pixel(wf, i + j * wf->width, find_floor(wf, omega, distfeet), distfeet, 0);
 			j++;
 		}
 		i++;
@@ -268,70 +269,79 @@ void movement(t_wf *wf)
 
 	if (wf->down)
 	{
-		x = wf->pl->posx;
-		y = wf->pl->posy;
-		x -= cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			x = wf->pl->posx;
-		y += sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			y = wf->pl->posy;
-		wf->pl->posx = x;
-		wf->pl->posy = y;
+		x = wf->pl->pos.x;
+		y = wf->pl->pos.y;
+		x -= cos(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+		
+		//if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			x = wf->pl->pos.x;
+		y += sin(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+		//if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			y = wf->pl->pos.y;
+		wf->pl->pos.x = x;
+		wf->pl->pos.y = y;
 	}
 
 	if (wf->up)
 	{
-		x = wf->pl->posx;
-		y = wf->pl->posy;
-		x += cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			x = wf->pl->posx;
-		y -= sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			y = wf->pl->posy;
-		wf->pl->posx = x;
-		wf->pl->posy = y;
+		x = wf->pl->pos.x;
+		y = wf->pl->pos.y;
+		x += cos(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+		//if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			x = wf->pl->pos.x;
+		y -= sin(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+		//if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			y = wf->pl->pos.y;
+		wf->pl->pos.x = x;
+		wf->pl->pos.y = y;
 	}
 
 	if (wf->strafel)
 	{
-		x = wf->pl->posx;
-		y = wf->pl->posy;
-		x += cos(degtorad(wf->pl->angle + 90)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-        	x = wf->pl->posx;
-		y -= sin(degtorad(wf->pl->angle + 90)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			y = wf->pl->posy;
-		wf->pl->posx = x;
-		wf->pl->posy = y;
+		x = wf->pl->pos.x;
+		y = wf->pl->pos.y;
+		x += cos(degtorad(wf->pl->angle + 90)) * wf->pl->speed * wf->frametime;
+		//if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			x = wf->pl->pos.x;
+		y -= sin(degtorad(wf->pl->angle + 90)) * wf->pl->speed * wf->frametime;
+		//if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			y = wf->pl->pos.y;
+		wf->pl->pos.x = x;
+		wf->pl->pos.y = y;
 	}
 
 	if (wf->strafer)
 	{
-		x = wf->pl->posx;
-		y = wf->pl->posy;
-		x += cos(degtorad(wf->pl->angle - 90)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-        	x = wf->pl->posx;
-		y -= sin(degtorad(wf->pl->angle - 90)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			y = wf->pl->posy;
-		wf->pl->posx = x;
-		wf->pl->posy = y;
+		x = wf->pl->pos.x;
+		y = wf->pl->pos.y;
+		x += cos(degtorad(wf->pl->angle - 90)) * wf->pl->speed * wf->frametime;
+		//if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			x = wf->pl->pos.x;
+		y -= sin(degtorad(wf->pl->angle - 90)) * wf->pl->speed * wf->frametime;
+		//if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			y = wf->pl->pos.y;
+		wf->pl->pos.x = x;
+		wf->pl->pos.y = y;
 	}
 
 	if (wf->right)
 	{
-            wf->pl->angle -= wf->pl->turn;
+            wf->pl->angle -= wf->pl->turn * wf->frametime;
             if (wf->pl->angle < 0)
                 wf->pl->angle += 360;
         }
 
 	if (wf->left)
         {
-            wf->pl->angle += wf->pl->turn;
+            wf->pl->angle += wf->pl->turn * wf->frametime;
             if (wf->pl->angle >= 360)
                 wf->pl->angle -= 360;
         }
@@ -418,6 +428,12 @@ void	handle_events(t_wf *wf)
 	}
 }
 
+int	calculate_frametime(t_wf *wf)
+{
+	wf->frametime = (float)(wf->time - wf->old_time) / (float)1000;
+	printf("FPS: %f\n", 1 / wf->frametime);
+}
+
 int main(int ac, char **av)
 {
 	t_wf		*wf;
@@ -464,19 +480,22 @@ int main(int ac, char **av)
 
 	while (1)
 	{
-	    if (wf->strafel || wf->strafer || wf->down || wf->up || wf->right || wf->left)
-        {
-            memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
+		wf->old_time = wf->time;
+		wf->time = SDL_GetTicks();
+		if (wf->strafel || wf->strafer || wf->down || wf->up || wf->right || wf->left)
+		{
+			calculate_frametime(wf);
+			memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
 			//Reset z-buf
 			memset(wf->zbuf, 0, wf->width * wf->height * sizeof(int));
-            movement(wf);
-			floor_and_ceiling(wf);
+			movement(wf);
+			//floor_and_ceiling(wf);
 			draw_walls(wf);
-			draw_floor(wf);
-			draw_ceiling(wf);
+			//draw_floor(wf);
+			//draw_ceiling(wf);
 			draw_objects(wf);
 			update(wf, 0);
-        }
+		}
 		handle_events(wf);
 	}
 	return (0);

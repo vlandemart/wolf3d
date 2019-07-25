@@ -33,13 +33,12 @@ typedef struct	s_v2
 
 typedef struct	s_pl
 {
-	double	posx;
-	double	posy;
+	t_v2	pos;
 	double	angle;
 	double	fov;
 	double	height;
-	int     speed;
-	int     turn;
+	int		speed;
+	int		turn;
 }				t_pl;
 
 typedef struct	s_sdl
@@ -51,15 +50,6 @@ typedef struct	s_sdl
 	SDL_Texture		*txt;
 	Uint32			*pix;
 }				t_sdl;
-
-typedef struct	s_obj
-{
-	t_v2	pos;
-	int		passable;
-	int		type;
-	void	*on_col;
-	int		**texture;
-}				t_obj;
 
 typedef struct	s_wf
 {
@@ -87,7 +77,20 @@ typedef struct	s_wf
 	float	light_distance;
 	float	*zbuf;
 	t_list	*objects;
+	float	time;
+	float	old_time;
+	float	frametime;
 }				t_wf;
+
+typedef struct	s_obj
+{
+	t_v2	pos_map;
+	t_v2	pos_real;
+	int		passable;
+	int		type;
+	int		(*on_col)(void *wf, void *data);
+	int		**texture;
+}				t_obj;
 
 double			degtorad(double deg);
 double			radtodeg(double rad);
@@ -101,6 +104,7 @@ void			update(t_wf *wf, int flag);
 void			draw_wall(t_wf *wf, int i, double dist, int check, double param);
 void			draw_objects(t_wf *wf);
 int				raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int mask);
-void			put_pixel(t_wf *wf, int index, int color, double dist);
+void			put_pixel(t_wf *wf, int index, int color, double dist, int zbuf);
+int				check_collision(t_wf *wf, t_v2 pos);
 
 #endif

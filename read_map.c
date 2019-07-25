@@ -9,12 +9,24 @@ t_v2	new_v2(float x, float y)
 	return (v2);
 }
 
+int		destroy_obj(void *data_wf, void *data_obj)
+{
+	t_wf	*wf;
+	t_obj	*obj;
+
+	wf = (t_wf*)data_wf;
+	obj = (t_obj*)data_obj;
+	//TODO - delete obj from objects list
+	printf("deleted some obj\n");
+}
+
 int		create_obj(t_wf *wf, int x, int y, int type)
 {
 	t_obj *obj;
 
 	obj = (t_obj*)malloc(sizeof(t_obj));
-	obj->pos = new_v2(x, y);
+	obj->pos_map = new_v2(x, y);
+	obj->pos_real = new_v2((obj->pos_map.x + 0.5f) * SQLEN, (obj->pos_map.y + 0.5f) * SQLEN);
 	if (type == 2)
 	{
 		obj->texture = read_texture("texture_creator/box.wolf");
@@ -30,7 +42,7 @@ int		create_obj(t_wf *wf, int x, int y, int type)
 	if (type == 4)
 	{
 		obj->texture = read_texture("texture_creator/health.wolf");
-		obj->on_col = NULL;
+		obj->on_col = destroy_obj;
 		obj->passable = 1;
 	}
 
