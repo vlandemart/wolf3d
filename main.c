@@ -179,7 +179,6 @@ int find_ceil(t_wf *wf, double omega, double distfeet)
 {
 	double x;
 	double y;
-	double shading;
 	int x0;
 	int y0;
 
@@ -198,8 +197,7 @@ int find_ceil(t_wf *wf, double omega, double distfeet)
 		y0 -= SQLEN / 2;
 	else if (y0 < 0)
 		y0 += SQLEN / 2;
-	shading = 1 - (MIN(distfeet, wf->light_distance) / wf->light_distance);
-	return (rgb_multiply(wf->tx3[x0][y0], shading));
+	return (wf->tx3[x0][y0]);
 }
 
 void	draw_ceiling(t_wf *wf)
@@ -216,9 +214,13 @@ void	draw_ceiling(t_wf *wf)
 		j = 0;
 		while (j < wf->ceil[i])
 		{
-			distfeet = (wf->pl->height * wf->dist) /
-				((wf->height / 2 - j) * (SQLEN / 2) * cos(degtorad(omega)));
-			wf->sdl->pix[i + j * wf->width] = find_ceil(wf, omega, distfeet);
+			if (wf->zbuf[i + j * wf->width] == 0)
+			{
+				distfeet = (wf->pl->height * wf->dist) /
+					((wf->height / 2 - j) * (SQLEN / 2) * cos(degtorad(omega)));
+				put_pixel(wf, i + j * wf->width, find_ceil(wf, omega, distfeet), distfeet, 0);
+				//wf->sdl->pix[i + j * wf->width] = find_ceil(wf, omega, distfeet);
+			}
 			j++;
 		}
 		i++;
@@ -240,9 +242,12 @@ void	draw_floor(t_wf *wf)
 		j = wf->floor[i];
 		while (j < wf->height)
 		{
-			distfeet = (wf->pl->height * wf->dist) /
-				((j - wf->height / 2) * (SQLEN / 2) * cos(degtorad(omega)));
-			put_pixel(wf, i + j * wf->width, find_floor(wf, omega, distfeet), distfeet, 0);
+			if (wf->zbuf[i + j * wf->width] == 0)
+			{
+				distfeet = (wf->pl->height * wf->dist) /
+					((j - wf->height / 2) * (SQLEN / 2) * cos(degtorad(omega)));
+				put_pixel(wf, i + j * wf->width, find_floor(wf, omega, distfeet), distfeet, 0);
+			}
 			j++;
 		}
 		i++;
@@ -491,8 +496,8 @@ int main(int ac, char **av)
 			movement(wf);
 			//floor_and_ceiling(wf);
 			draw_walls(wf);
-			//draw_floor(wf);
-			//draw_ceiling(wf);
+			draw_floor(wf);
+			draw_ceiling(wf);
 			draw_objects(wf);
 			update(wf, 0);
 		}
