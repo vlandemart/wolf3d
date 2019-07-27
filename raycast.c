@@ -88,7 +88,7 @@ void	draw_walls(t_wf *wf)
 		if (raycast(wf, omega, &dist, &hit, &side, 1))
 		{
 			dist = dist * cos(degtorad(omega - wf->pl->angle));
-			draw_wall(wf, i, dist, side + 1, side > 1 ? hit.x : hit.y);
+			draw_wall(wf, i, dist, side, side > 1 ? hit.x : hit.y);
 		}
 		else
 		{
@@ -123,7 +123,7 @@ void	draw_object(t_wf *wf, t_obj obj, int x, int dist, float size)
 			{
 				int a = (j - x) / size;
 				int b = (i - y) / size;
-				put_pixel(wf, j + wf->width * i, obj.texture[a][b], dist, 1);
+				put_pixel(wf, j + wf->width * i, get_tx(wf, obj.tx, a, b), dist, 1);
 			}
 			j++;
 		}
@@ -152,7 +152,7 @@ void	draw_objects(t_wf *wf)
 			angle -= 2.0 * M_PI;
 		angle -= M_PI / 2;
 
-		if (fabs(radtodeg(angle)) <= (wf->pl->fov / 2 + 10))
+		if (fabs(radtodeg(angle)) <= (wf->pl->fov / 2 + 10) && obj->enabled)
 		{
 			int x = wf->width / 2 - tan(angle) * wf->dist;
 			float size = (float)wf->dist / (cos(angle) * dist);

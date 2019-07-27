@@ -56,14 +56,6 @@ void	init_player(t_wf *wf)
 	wf->light_distance = SQLEN * 2.5f;
 }
 
-void	init_textures(t_wf *wf)
-{
-	wf->tx1 = read_texture("texture_creator/brick.wolf");
-	wf->tx2 = read_texture("texture_creator/wood.wolf");
-	wf->tx3 = read_texture("texture_creator/stone.wolf");
-	wf->tx4 = read_texture("texture_creator/img.wolf");
-}
-
 void     update(t_wf *wf, int flag)
 {
     if (flag)
@@ -102,7 +94,8 @@ double	degtorad(double deg)
 //it - we can easily add transparency, shading and z-buffer
 void	put_pixel(t_wf *wf, int index, int color, double dist, int zbuf)
 {
-	float shading;
+	float	shading;
+	int		col;
 
 	if (index < 0 || index > wf->height * wf->width)
 		return ;
@@ -115,10 +108,13 @@ void	put_pixel(t_wf *wf, int index, int color, double dist, int zbuf)
 		wf->zbuf[index] = dist;
 	}
 	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
-	wf->sdl->pix[index] = rgb_multiply(color, shading);
+	col = rgb_multiply(color, shading);
+	if (wf->flash > 0)
+		col = rgb_mix(0xffff00, col, wf->flash);
+	wf->sdl->pix[index] = col;
 }
 
-void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
+void	draw_wall(t_wf *wf, int i, double dist, int side, double param)
 {
 	int		j;
 	int		height;
@@ -126,14 +122,6 @@ void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
 	int		**txt;
 	double	percent;
 
-	if (check == 1)
-		txt = wf->tx1;
-	else if (check == 2)
-		txt = wf->tx2;
-	else if (check == 3)
-		txt = wf->tx3;
-	else if (check == 4)
-		txt = wf->tx4;
 	height = SQLEN * wf->dist / dist / 2;
 	tmp = (wf->height - height) / 2;
 	wf->floor[i] = tmp + height;
@@ -144,7 +132,7 @@ void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
 		if (j > tmp && j < tmp + height)
 		{
 			percent = (double)(j - tmp) / (double)height;
-			put_pixel(wf, i + wf->width * j, txt[(int)param % 32][(int)(32.0 * percent)], dist, 1);
+			put_pixel(wf, i + wf->width * j, get_tx(wf, side, (int)param % 32, (int)(32.0 * percent)), dist, 1);
 		}
 		j++;
 	}
@@ -172,7 +160,7 @@ int	find_floor(t_wf *wf, double omega, double distfeet)
 		y0 -= SQLEN / 2;
 	else if (y0 < 0)
 		y0 += SQLEN / 2;
-	return (wf->tx2[x0][y0]);
+	return (get_tx(wf, TXT_WOOD, x0, y0));
 }
 
 int find_ceil(t_wf *wf, double omega, double distfeet)
@@ -197,7 +185,7 @@ int find_ceil(t_wf *wf, double omega, double distfeet)
 		y0 -= SQLEN / 2;
 	else if (y0 < 0)
 		y0 += SQLEN / 2;
-	return (wf->tx3[x0][y0]);
+	return (get_tx(wf, TXT_STONE, x0, y0));
 }
 
 void	draw_ceiling(t_wf *wf)
@@ -435,8 +423,30 @@ void	handle_events(t_wf *wf)
 
 int	calculate_frametime(t_wf *wf)
 {
-	wf->frametime = (float)(wf->time - wf->old_time) / (float)1000;
+	wf->frametime = (float)(wf->ftime - wf->ftime_old) / (float)1000;
 	printf("FPS: %f\n", 1 / wf->frametime);
+}
+
+int	time_update(t_wf *wf)
+{
+	wf->anim_frame += 1;
+	if (wf->anim_frame > 1)
+		wf->anim_frame = 0;
+	return (0);
+}
+
+int	render(t_wf *wf)
+{
+	memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
+	//Reset z-buf
+	memset(wf->zbuf, 0, wf->width * wf->height * sizeof(int));
+	movement(wf);
+	//floor_and_ceiling(wf);
+	draw_walls(wf);
+	draw_floor(wf);
+	draw_ceiling(wf);
+	draw_objects(wf);
+	update(wf, 0);
 }
 
 int main(int ac, char **av)
@@ -485,22 +495,22 @@ int main(int ac, char **av)
 
 	while (1)
 	{
-		wf->old_time = wf->time;
-		wf->time = SDL_GetTicks();
-		if (wf->strafel || wf->strafer || wf->down || wf->up || wf->right || wf->left)
+		wf->ftime_old = wf->ftime;
+		wf->ftime = SDL_GetTicks();
+		wf->time += wf->frametime;
+		if (wf->flash > 0)
 		{
-			calculate_frametime(wf);
-			memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
-			//Reset z-buf
-			memset(wf->zbuf, 0, wf->width * wf->height * sizeof(int));
-			movement(wf);
-			//floor_and_ceiling(wf);
-			draw_walls(wf);
-			draw_floor(wf);
-			draw_ceiling(wf);
-			draw_objects(wf);
-			update(wf, 0);
+			wf->flash -= wf->frametime;
+			CLAMP(wf->flash, 0, 1);
 		}
+		if (wf->time >= 0.5)
+		{
+			time_update(wf);
+			wf->time = 0;
+		}
+		//if (wf->strafel || wf->strafer || wf->down || wf->up || wf->right || wf->left)
+		calculate_frametime(wf);
+		render(wf);
 		handle_events(wf);
 	}
 	return (0);

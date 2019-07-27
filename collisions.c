@@ -31,7 +31,7 @@ int	check_collision(t_wf *wf, t_v2 pos)
 	while (objs != NULL)
 	{
 		obj = (t_obj*)(objs->content);
-		if (distance(obj->pos_real, pos) <= 28)
+		if (obj->enabled && distance(obj->pos_real, pos) <= 24)
 		{
 			if (obj->on_col != NULL)
 				obj->on_col(wf, obj);

@@ -12,12 +12,23 @@ t_v2	new_v2(float x, float y)
 int		destroy_obj(void *data_wf, void *data_obj)
 {
 	t_wf	*wf;
+	t_obj	*obj_to_destroy;
 	t_obj	*obj;
+	t_list	*objs;
 
 	wf = (t_wf*)data_wf;
-	obj = (t_obj*)data_obj;
-	//TODO - delete obj from objects list
-	printf("deleted some obj\n");
+	obj_to_destroy = (t_obj*)data_obj;
+	objs = wf->objects;
+	while (objs != NULL)
+	{
+		obj = (t_obj*)(objs->content);
+		if (obj->instance_index == obj_to_destroy->instance_index)
+			obj->enabled = 0;
+		objs = objs->next;
+	}
+	wf->flash = 0.7;
+	//TODO - Score update
+	//TODO - Visual feedback
 }
 
 int		create_obj(t_wf *wf, int x, int y, int type)
@@ -27,21 +38,23 @@ int		create_obj(t_wf *wf, int x, int y, int type)
 	obj = (t_obj*)malloc(sizeof(t_obj));
 	obj->pos_map = new_v2(x, y);
 	obj->pos_real = new_v2((obj->pos_map.x + 0.5f) * SQLEN, (obj->pos_map.y + 0.5f) * SQLEN);
+	obj->instance_index = x + y * wf->map_size;
+	obj->enabled = 1;
 	if (type == 2)
 	{
-		obj->texture = read_texture("texture_creator/box.wolf");
+		obj->tx = TXT_BOX;
 		obj->on_col = NULL;
 		obj->passable = 0;
 	}
 	if (type == 3)
 	{
-		obj->texture = read_texture("texture_creator/lamp.wolf");
+		obj->tx = TXT_LAMP;
 		obj->on_col = NULL;
 		obj->passable = 1;
 	}
 	if (type == 4)
 	{
-		obj->texture = read_texture("texture_creator/health.wolf");
+		obj->tx = TXT_HEALTH;
 		obj->on_col = destroy_obj;
 		obj->passable = 1;
 	}
@@ -134,14 +147,14 @@ int		read_map(t_wf *data, char *file_name)
 	return (1);
 }
 
-int	**read_texture(char *file_name)
+int	*read_texture(char *file_name)
 {
 	int		n;
 	char	*tmp;
 	char	*str;
 	int		i;
 	int		j;
-	int		**texture;
+	int		*texture;
 
 	n = open(file_name, O_RDONLY);
 	if (n <= 0)
@@ -156,13 +169,7 @@ int	**read_texture(char *file_name)
 	}
 	//printf("Texture read.\n");
 	//printf("Opening texture...\n");
-	texture = (int**)malloc(sizeof(int*) * 32);
-	i = 0;
-	while (i < 32)
-	{
-		texture[i] = (int*)malloc(sizeof(int) * 32);
-		i++;
-	}
+	texture = (int*)malloc(sizeof(int) * 32 * 32);
 	i = 0;
 	n = 0;
 	while (str[n])
@@ -176,7 +183,7 @@ int	**read_texture(char *file_name)
 				tmp = ft_strjoinc(tmp, &str[n]);
 				n++;
 			}
-			texture[j][i] = ft_atoi(tmp);
+			texture[j + i * 32] = ft_atoi(tmp);
 			ft_strdel(&tmp);
 			n++;
 			j++;
