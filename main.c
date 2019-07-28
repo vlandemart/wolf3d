@@ -168,7 +168,7 @@ int	find_floor(t_wf *wf, double omega, double distfeet)
 		y0 -= SQLEN / 2;
 	else if (y0 < 0)
 		y0 += SQLEN / 2;
-	shading = 1 - (MIN(distfeet, wf->light_distance) / wf->light_distance);
+	shading = 1 - (MIN(distfeet, wf->light_distance * 0.75) / (wf->light_distance * 0.75));
 	return (rgb_multiply(wf->tx2[x0][y0], shading));
 }
 
@@ -195,7 +195,7 @@ int find_ceil(t_wf *wf, double omega, double distfeet)
 		y0 += SQLEN / 2;
 	else if (y0 >= SQLEN / 2)
 		y0 -= SQLEN / 2;
-	shading = 1 - (MIN(distfeet, wf->light_distance) / wf->light_distance);
+	shading = 1 - (MIN(distfeet, wf->light_distance * 0.75) / (wf->light_distance * 0.75));
 	return (rgb_multiply(wf->tx3[x0][y0], shading));
 }
 
@@ -215,7 +215,8 @@ void	draw_ceiling(t_wf *wf)
 		{
 			distfeet = (wf->pl->height * wf->dist) /
 				((wf->height / 2 - j) * (SQLEN / 2) * cos(degtorad(omega)));
-			wf->sdl->pix[i + j * wf->width] = find_ceil(wf, omega, distfeet);
+			if (distfeet < wf->light_distance * 0.75)
+				wf->sdl->pix[i + j * wf->width] = find_ceil(wf, omega, distfeet);
 			j++;
 		}
 		i++;
@@ -239,7 +240,8 @@ void	draw_floor(t_wf *wf)
 		{
 			distfeet = (wf->pl->height * wf->dist) /
 				((j - wf->height / 2) * (SQLEN / 2) * cos(degtorad(omega)));
-			wf->sdl->pix[i + j * wf->width] = find_floor(wf, omega, distfeet);
+			if (distfeet < wf->light_distance * 0.75)
+				wf->sdl->pix[i + j * wf->width] = find_floor(wf, omega, distfeet);
 			j++;
 		}
 		i++;
@@ -340,36 +342,18 @@ void	floor_and_ceiling(t_wf *data)
 	int i;
 	int j;
 	int color;
-	float br;
 
-	//ceiling
-	color = 0x303030;
+	color = 0;
 	i = 0;
-	while (i < data->height / 2)
+	while (i < data->height)
 	{
-		br = (float)((float)((data->height / 2) - i) / (float)(data->height / 2));
 		j = 0;
 		while (j < data->width)
 		{
-			data->sdl->pix[i * data->width + j] = rgb_multiply(color, br);
+			data->sdl->pix[i * data->width + j] = color;
 			j++;
 		}
 		i++;
-	}
-	//floor
-	color = 0x909090;
-	i = data->height - 1;
-	while (i > data->height / 2)
-	{
-		j = 0;
-		br = (float)((float)(i - data->height / 2) / (float)(data->height / 2));
-		while (j < data->width)
-		{
-			data->sdl->pix[i * data->width + j] = rgb_multiply(color, br);
-	//render_all(wf);
-			j++;
-		}
-		i--;
 	}
 }
 
