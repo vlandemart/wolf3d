@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   rgb_manipulations.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/07/28 22:14:22 by ydavis            #+#    #+#             */
+/*   Updated: 2019/07/28 22:15:26 by ydavis           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
 /*
@@ -8,9 +20,9 @@
 
 int	rgb_add(int rgb, float value)
 {
-	return ((CLAMP((int)(((rgb >> 16) & 0xff) + value), 0, 255) << 16) |
-			(CLAMP((int)(((rgb >> 8) & 0xff) + value), 0, 255) << 8) |
-			CLAMP((int)((rgb & 0xff) + value), 0, 255));
+	return (((int)clamp((int)(((rgb >> 16) & 0xff) + value), 0, 255) << 16) |
+			((int)clamp((int)(((rgb >> 8) & 0xff) + value), 0, 255) << 8) |
+			(int)clamp((int)((rgb & 0xff) + value), 0, 255));
 }
 
 /*
@@ -21,9 +33,9 @@ int	rgb_add(int rgb, float value)
 
 int	rgb_multiply(int rgb, float value)
 {
-	return ((CLAMP((int)(((rgb >> 16) & 0xff) * value), 0, 255) << 16) |
-			(CLAMP((int)(((rgb >> 8) & 0xff) * value), 0, 255) << 8) |
-			CLAMP((int)((rgb & 0xff) * value), 0, 255));
+	return (((int)clamp((int)(((rgb >> 16) & 0xff) * value), 0, 255) << 16) |
+			((int)clamp((int)(((rgb >> 8) & 0xff) * value), 0, 255) << 8) |
+			(int)clamp((int)((rgb & 0xff) * value), 0, 255));
 }
 
 
@@ -37,7 +49,7 @@ int	rgb_mix(int rgb1, int rgb2, float percent)
 {
 	float percent2;
 
-	percent = CLAMP(percent, 0, 1);
+	percent = clamp(percent, 0, 1);
 	percent2 = 1 - percent;
 	rgb1 = ((int)(((rgb1 >> 16) & 0xff) * percent + ((rgb2 >> 16) & 0xff) * percent2) << 16) |
 			((int)(((rgb1 >> 8) & 0xff) * percent + ((rgb2 >> 8) & 0xff) * percent2) << 8) |

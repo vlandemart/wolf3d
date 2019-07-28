@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:24 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 19:35:31 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 22:13:38 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ float	distance(t_v2 pos1, t_v2 pos2)
 	dx = pos1.x - pos2.x;
 	dy = pos1.y - pos2.y;
 	dist = sqrt(dx * dx + dy * dy);
-	return (CLAMP(dist, 1, 999));
+	return (clamp(dist, 1, 999));
 }
 
 /*

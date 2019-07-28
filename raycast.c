@@ -6,7 +6,7 @@
 /*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/03 15:17:55 by njacobso          #+#    #+#             */
-/*   Updated: 2019/07/28 19:56:43 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 22:21:13 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,10 @@ int		get_map(t_wf *data, int x, int y)
 {
 	if (x >= 0 && y >= 0 && x < data->map_size && y < data->map_size)
 		return (data->map[x][y]);
-	printf("%d:%d is out of bounds\n", x, y);
+	ft_putnbr(x);
+	ft_putchar('\n');
+	ft_putnbr(y);
+	ft_putendl(" is out of bounds");
 	return (-1);
 }
 
@@ -26,6 +29,7 @@ int		get_map(t_wf *data, int x, int y)
 **	hit_pos - position of hit obj.
 **	side - side of hit obj, value is between 0 and 3.
 */
+
 int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int mask)
 {
 	t_v2	dir;
@@ -36,7 +40,6 @@ int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int
 	hit_pos->y = data->pl->pos.y;
 	dir = new_v2(cos(degtorad(angle)), -sin(degtorad(angle)));
 	*dist = 0;
-	//step = 1;
 	while (*dist < SQLEN * 8)
 	{
 		if (*dist > SQLEN * 4)
@@ -88,7 +91,7 @@ void	draw_walls(t_wf *wf)
 		if (raycast(wf, omega, &dist, &hit, &side, 1))
 		{
 			dist = dist * cos(degtorad(omega - wf->pl->angle));
-			draw_wall(wf, i, dist, side, side > 1 ? hit.x : hit.y);
+			draw_wall(wf, new_wall(i, dist, side, side > 1 ? hit.x : hit.y));
 		}
 		else
 		{

@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 19:52:05 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 22:13:12 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,12 @@
 # include "lib/libft/libft.h"
 # define SQLEN 64
 //Function defines
+/*
 # define RAN(l, h) (l + (h - l) * ((double)rand() / RAND_MAX * 2.0 - 1.0))
 # define MIN(a, b) ((a < b) ? a : b)
 # define MAX(a, b) ((a > b) ? a : b)
 # define CLAMP(a, mi, ma) MIN(MAX(a, mi), ma)
+*/
 //Texture defines
 # define TXT_BRICK 0
 # define TXT_WOOD 1
@@ -39,6 +41,14 @@ typedef struct	s_v2
 	float		x;
 	float		y;
 }				t_v2;
+
+typedef struct	s_wall
+{
+	int		i;
+	int		side;
+	double	dist;
+	double	param;
+}				t_wall;
 
 typedef struct	s_pix
 {
@@ -120,7 +130,23 @@ typedef struct	s_obj
 double			degtorad(double deg);
 double			radtodeg(double rad);
 
+double			ran(double l, double h);
+double			min(double a, double b);
+double			max(double a, double b);
+double			clamp(double a, double mi, double ma);
+
 t_v2			new_v2(float x, float y);
+t_wall			new_wall(int i, double dist, int side, double param);
+t_pix			new_pix(int index, double dist, int zbuf, int wall);
+
+t_wf			*init_wf(int ac, char **av);
+void			init_map(t_wf *wf);
+void			init_player(t_wf *wf);
+void			init_floorceil(t_wf *wf);
+void			init_args(t_wf *wf, int ac, char **av);
+void			prepare_window(t_wf *wf);
+void			floor_and_ceiling(t_wf *wf);
+void			malloc_check(t_wf *wf, void *addr);
 
 int				read_map(t_wf *data, char *file_name);
 int				*read_texture(char *file_name);
@@ -130,17 +156,33 @@ int				rgb_mix(int rgb1, int rgb2, float percent);
 
 void			update(t_wf *wf, int flag);
 
-//void			put_pixel(t_wf *wf, int index, int color, double dist, int zbuf);
+void			movement(t_wf *wf);
+void			move_up(t_wf *wf);
+void			move_down(t_wf *wf);
+void			turn_left(t_wf *wf);
+void			turn_right(t_wf *wf);
+void			strafe_left(t_wf *wf);
+void			strafe_right(t_wf *wf);
+
 void			put_pixel(t_wf *wf, t_pix pix);
+void			render(t_wf *wf);
 
 int				raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int mask);
-void			draw_wall(t_wf *wf, int i, double dist, int check, double param);
+void			draw_wall(t_wf *wf, t_wall wall);
 void			draw_walls(t_wf *wf);
 void			draw_objects(t_wf *wf);
+void			draw_ceilfloor(t_wf *wf);
+int				floor_ceil(t_wf *wf, double omega, double distfeet, int txt);
 int				check_collision(t_wf *wf, t_v2 pos);
 
 void			init_textures(t_wf *wf);
 int				get_tx(t_wf *wf, int tx_index, int x, int y);
 
+int				cycle(t_wf *wf);
+void			handle_events(t_wf *wf);
+void			calculate_frametime(t_wf *wf);
+void			time_update(t_wf *wf);
+void			malloc_check(t_wf *wf, void *addr);
+int				close_app_s(t_wf *wf, char *str);
 
 #endif

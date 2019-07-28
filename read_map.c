@@ -6,20 +6,11 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:33:23 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 19:33:40 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 22:14:09 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
-
-t_v2	new_v2(float x, float y)
-{
-	t_v2 v2;
-
-	v2.x = x;
-	v2.y = y;
-	return (v2);
-}
 
 int		destroy_obj(void *data_wf, void *data_obj)
 {
@@ -152,7 +143,7 @@ int		read_map(t_wf *data, char *file_name)
 	}
 	printf("Read map:\n%s\n", map);
 	printf("Binding map...\n");
-	data->map_size = MAX(map_size.x, map_size.y);
+	data->map_size = (int)max(map_size.x, map_size.y);
 	bind_map(data, map);
 	printf("Map clean up...\n");
 	ft_strdel(&map);
