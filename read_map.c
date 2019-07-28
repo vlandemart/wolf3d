@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   read_map.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/07/28 19:33:23 by ydavis            #+#    #+#             */
+/*   Updated: 2019/07/28 19:33:40 by ydavis           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
 t_v2	new_v2(float x, float y)
@@ -9,19 +21,57 @@ t_v2	new_v2(float x, float y)
 	return (v2);
 }
 
+int		destroy_obj(void *data_wf, void *data_obj)
+{
+	t_wf	*wf;
+	t_obj	*obj_to_destroy;
+	t_obj	*obj;
+	t_list	*objs;
+
+	wf = (t_wf*)data_wf;
+	obj_to_destroy = (t_obj*)data_obj;
+	objs = wf->objects;
+	while (objs != NULL)
+	{
+		obj = (t_obj*)(objs->content);
+		if (obj->instance_index == obj_to_destroy->instance_index)
+			obj->enabled = 0;
+		objs = objs->next;
+	}
+	wf->flash = 0.7;
+	return (0);
+	//TODO - Score update
+	//TODO - Visual feedback
+}
+
 int		create_obj(t_wf *wf, int x, int y, int type)
 {
 	t_obj *obj;
 
 	obj = (t_obj*)malloc(sizeof(t_obj));
-	obj->pos = new_v2(x, y);
+	obj->pos_map = new_v2(x, y);
+	obj->pos_real = new_v2((obj->pos_map.x + 0.5f) * SQLEN, (obj->pos_map.y + 0.5f) * SQLEN);
+	obj->instance_index = x + y * wf->map_size;
+	obj->enabled = 1;
 	if (type == 2)
 	{
-		obj->texture = read_texture("texture_creator/box.wolf");
+		obj->tx = TXT_BOX;
+		obj->on_col = NULL;
+		obj->passable = 0;
+	}
+	if (type == 3)
+	{
+		obj->tx = TXT_LAMP;
 		obj->on_col = NULL;
 		obj->passable = 1;
 	}
-	//TODO: put created object into wf->objects
+	if (type == 4)
+	{
+		obj->tx = TXT_HEALTH;
+		obj->on_col = destroy_obj;
+		obj->passable = 1;
+	}
+
 	ft_lstadd(&wf->objects, ft_lstnew(obj, sizeof(t_obj)));
 	return (1);
 }
@@ -110,14 +160,14 @@ int		read_map(t_wf *data, char *file_name)
 	return (1);
 }
 
-int	**read_texture(char *file_name)
+int	*read_texture(char *file_name)
 {
 	int		n;
 	char	*tmp;
 	char	*str;
 	int		i;
 	int		j;
-	int		**texture;
+	int		*texture;
 
 	n = open(file_name, O_RDONLY);
 	if (n <= 0)
@@ -132,13 +182,7 @@ int	**read_texture(char *file_name)
 	}
 	//printf("Texture read.\n");
 	//printf("Opening texture...\n");
-	texture = (int**)malloc(sizeof(int*) * 32);
-	i = 0;
-	while (i < 32)
-	{
-		texture[i] = (int*)malloc(sizeof(int) * 32);
-		i++;
-	}
+	texture = (int*)malloc(sizeof(int) * 32 * 32);
 	i = 0;
 	n = 0;
 	while (str[n])
@@ -152,7 +196,7 @@ int	**read_texture(char *file_name)
 				tmp = ft_strjoinc(tmp, &str[n]);
 				n++;
 			}
-			texture[j][i] = ft_atoi(tmp);
+			texture[j + i * 32] = ft_atoi(tmp);
 			ft_strdel(&tmp);
 			n++;
 			j++;

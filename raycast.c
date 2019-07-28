@@ -32,8 +32,8 @@ int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int
 	float	step;
 	int		map_obj;
 
-	hit_pos->x = data->pl->posx;
-	hit_pos->y = data->pl->posy;
+	hit_pos->x = data->pl->pos.x;
+	hit_pos->y = data->pl->pos.y;
 	dir = new_v2(cos(degtorad(angle)), -sin(degtorad(angle)));
 	*dist = 0;
 	//step = 1;
@@ -88,7 +88,7 @@ void	draw_walls(t_wf *wf)
 		if (raycast(wf, omega, &dist, &hit, &side, 1))
 		{
 			dist = dist * cos(degtorad(omega - wf->pl->angle));
-			draw_wall(wf, i, dist, side + 1, side > 1 ? hit.x : hit.y);
+			draw_wall(wf, i, dist, side, side > 1 ? hit.x : hit.y);
 		}
 		else
 		{
@@ -98,6 +98,35 @@ void	draw_walls(t_wf *wf)
 		omega -= wf->angw;
 		if (omega < 0)
 			omega += 360;
+		i++;
+	}
+}
+
+void	draw_object(t_wf *wf, t_obj obj, int x, int dist, float size)
+{
+	int i;
+	int j;
+	int ex;
+	int ey;
+	int y = (wf->height - 32 * size) / 2;
+
+	x -= 16 * size;
+	ex = x + 32 * size;
+	ey = y + 32 * size;
+	i = y;
+	while (i < ey && i < wf->height)
+	{
+		j = x;
+		while (j < ex)
+		{
+			if (j < wf->width && j > 0)
+			{
+				int a = (j - x) / size;
+				int b = (i - y) / size;
+				put_pixel(wf, j + wf->width * i, get_tx(wf, obj.tx, a, b), dist, 1);
+			}
+			j++;
+		}
 		i++;
 	}
 }
@@ -112,21 +141,23 @@ void	draw_objects(t_wf *wf)
 	{
 		obj = (t_obj*)(objs->content);
 
-		printf("=====\n");
-		printf("sprite x %f, sprite y %f\n", obj->pos.x, obj->pos.y);
-
-		float dx = (obj->pos.x + 0.5f) * SQLEN - wf->pl->posx;
-		float dy = (obj->pos.y + 0.5f) * SQLEN - wf->pl->posy;
+		float dx = obj->pos_real.x - wf->pl->pos.x;
+		float dy = obj->pos_real.y - wf->pl->pos.y;
 		float dist = sqrt(dx * dx + dy * dy);
-		printf("dx %f, dy %f, dist %f\n", dx, dy, dist);
-		
 
-		float angle = atan2(dy, dx) - degtorad(wf->pl->angle);
-		float size = wf->dist / (cos(angle) * dist);
-		printf("angle %f, size %f\n", radtodeg(angle), size);
+		float angle = atan2(dx, dy) - degtorad(wf->pl->angle);
+		if (angle < -M_PI)
+			angle += 2.0 * M_PI;
+		if (angle > M_PI)
+			angle -= 2.0 * M_PI;
+		angle -= M_PI / 2;
 
-		int x = (int)(tan(angle) * wf->dist);
-		printf("sprite x on screen: %d\n", x);
+		if (fabs(radtodeg(angle)) <= (wf->pl->fov / 2 + 10) && obj->enabled)
+		{
+			int x = wf->width / 2 - tan(angle) * wf->dist;
+			float size = (float)wf->dist / (cos(angle) * dist);
+			draw_object(wf, *obj, x, dist, size);
+		}
 
 		objs = objs->next;
 	}

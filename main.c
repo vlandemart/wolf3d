@@ -1,4 +1,3 @@
-
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -7,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:38:52 by ydavis            #+#    #+#             */
-/*   Updated: 2019/06/29 00:56:40 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 19:33:07 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,25 +42,17 @@ void	init_map(t_wf *wf)
 void	init_player(t_wf *wf)
 {
 	wf->pl = (t_pl*)malloc(sizeof(t_pl));
-	wf->pl->posx = 150;
-	wf->pl->posy = 150;
+	wf->pl->pos.x = 128;
+	wf->pl->pos.y = 128;
 	wf->pl->angle = 0;
 	wf->pl->fov = 60;
-	wf->pl->turn = 3;
-	wf->pl->speed = 3;
+	wf->pl->turn = 90;
+	wf->pl->speed = 90;
 	wf->pl->height = wf->height / 2;
 	wf->lov = 4 * SQLEN;
 	wf->dist = ((double)wf->width / 2.0) / tan(degtorad(wf->pl->fov) / 2.0);
 	wf->angw = wf->pl->fov / wf->width;
 	wf->light_distance = SQLEN * 2.5f;
-}
-
-void	init_textures(t_wf *wf)
-{
-	wf->tx1 = read_texture("texture_creator/brick.wolf");
-	wf->tx2 = read_texture("texture_creator/wood.wolf");
-	wf->tx3 = read_texture("texture_creator/stone.wolf");
-	wf->tx4 = read_texture("texture_creator/box.wolf");
 }
 
 void     update(t_wf *wf, int flag)
@@ -100,35 +91,35 @@ double	degtorad(double deg)
 
 //Extracted it into separate method so we have some control over
 //it - we can easily add transparency, shading and z-buffer
-void	put_pixel(t_wf *wf, int index, int color, double dist)
+void	put_pixel(t_wf *wf, int index, int color, double dist, int zbuf)
 {
-	float shading;
+	float	shading;
+	int		col;
 
+	if (index < 0 || index > wf->height * wf->width)
+		return ;
 	if (color == 0xff00ff)
 		return;
-	if (wf->zbuf[index] > dist)
-		return;
-	wf->zbuf[index] = dist;
+	if (zbuf)
+	{
+		if (wf->zbuf[index] != 0 && wf->zbuf[index] < dist)
+			return;
+		wf->zbuf[index] = dist;
+	}
 	shading = 1 - (MIN(dist, wf->light_distance) / wf->light_distance);
-	wf->sdl->pix[index] = rgb_multiply(color, shading);
+	col = rgb_multiply(color, shading);
+	if (wf->flash > 0)
+		col = rgb_mix(0xffff00, col, wf->flash);
+	wf->sdl->pix[index] = col;
 }
 
-void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
+void	draw_wall(t_wf *wf, int i, double dist, int side, double param)
 {
-	int j;
-	int	height;
-	int	tmp;
-	int		**txt;
+	int		j;
+	int		height;
+	int		tmp;
 	double	percent;
 
-	if (check == 1)
-		txt = wf->tx1;
-	else if (check == 2)
-		txt = wf->tx2;
-	else if (check == 3)
-		txt = wf->tx3;
-	else if (check == 4)
-		txt = wf->tx4;
 	height = SQLEN * wf->dist / dist / 2;
 	tmp = (wf->height - height) / 2;
 	wf->floor[i] = tmp + height;
@@ -139,7 +130,7 @@ void	draw_wall(t_wf *wf, int i, double dist, int check, double param)
 		if (j > tmp && j < tmp + height)
 		{
 			percent = (double)(j - tmp) / (double)height;
-			put_pixel(wf, i + wf->width * j, txt[(int)param % 32][(int)(32.0 * percent)], dist);
+			put_pixel(wf, i + wf->width * j, get_tx(wf, side, (int)param % 32, (int)(32.0 * percent)), dist, 1);
 		}
 		j++;
 	}
@@ -149,15 +140,14 @@ int	find_floor(t_wf *wf, double omega, double distfeet)
 {
 	double x;
 	double y;
-	double shading;
 	int x0;
 	int y0;
 
 	omega = wf->pl->angle - omega;
 	if (omega >= 360)
 		omega -= 360;
-	x = wf->pl->posx + (distfeet * cos(degtorad(omega)));
-	y = wf->pl->posy + (distfeet * -sin(degtorad(omega)));
+	x = wf->pl->pos.x + (distfeet * cos(degtorad(omega)));
+	y = wf->pl->pos.y + (distfeet * -sin(degtorad(omega)));
 	x0 = (int)x % (SQLEN / 2);
 	y0 = (int)y % (SQLEN / 2);
 	if (x0 < 0)
@@ -168,35 +158,32 @@ int	find_floor(t_wf *wf, double omega, double distfeet)
 		y0 -= SQLEN / 2;
 	else if (y0 < 0)
 		y0 += SQLEN / 2;
-	shading = 1 - (MIN(distfeet, wf->light_distance * 0.75) / (wf->light_distance * 0.75));
-	return (rgb_multiply(wf->tx2[x0][y0], shading));
+	return (get_tx(wf, TXT_WOOD, x0, y0));
 }
 
 int find_ceil(t_wf *wf, double omega, double distfeet)
 {
 	double x;
 	double y;
-	double shading;
 	int x0;
 	int y0;
 
 	omega = wf->pl->angle - omega;
 	if (omega >= 360)
 		omega -= 360;
-	x = wf->pl->posx + (distfeet * cos(degtorad(omega)));
-	y = wf->pl->posy + (distfeet * -sin(degtorad(omega)));
+	x = wf->pl->pos.x + (distfeet * cos(degtorad(omega)));
+	y = wf->pl->pos.y + (distfeet * -sin(degtorad(omega)));
 	x0 = (int)x % (SQLEN / 2);
 	y0 = (int)y % (SQLEN / 2);
 	if (x0 < 0)
 		x0 += SQLEN / 2;
 	else if (x0 >= SQLEN / 2)
 		x0 -= SQLEN / 2;
-	if (y0 < 0)
-		y0 += SQLEN / 2;
-	else if (y0 >= SQLEN / 2)
+	if (y0 >= SQLEN / 2)
 		y0 -= SQLEN / 2;
-	shading = 1 - (MIN(distfeet, wf->light_distance * 0.75) / (wf->light_distance * 0.75));
-	return (rgb_multiply(wf->tx3[x0][y0], shading));
+	else if (y0 < 0)
+		y0 += SQLEN / 2;
+	return (get_tx(wf, TXT_STONE, x0, y0));
 }
 
 void	draw_ceiling(t_wf *wf)
@@ -213,10 +200,13 @@ void	draw_ceiling(t_wf *wf)
 		j = 0;
 		while (j < wf->ceil[i])
 		{
-			distfeet = (wf->pl->height * wf->dist) /
-				((wf->height / 2 - j) * (SQLEN / 2) * cos(degtorad(omega)));
-			if (distfeet < wf->light_distance * 0.75)
-				wf->sdl->pix[i + j * wf->width] = find_ceil(wf, omega, distfeet);
+			if (wf->zbuf[i + j * wf->width] == 0)
+			{
+				distfeet = (wf->pl->height * wf->dist) /
+					((wf->height / 2 - j) * (SQLEN / 2) * cos(degtorad(omega)));
+				if (distfeet < wf->light_distance * 0.75)
+					put_pixel(wf, i + j * wf->width, find_ceil(wf, omega, distfeet), distfeet, 0);
+			}
 			j++;
 		}
 		i++;
@@ -238,10 +228,13 @@ void	draw_floor(t_wf *wf)
 		j = wf->floor[i];
 		while (j < wf->height)
 		{
-			distfeet = (wf->pl->height * wf->dist) /
-				((j - wf->height / 2) * (SQLEN / 2) * cos(degtorad(omega)));
-			if (distfeet < wf->light_distance * 0.75)
-				wf->sdl->pix[i + j * wf->width] = find_floor(wf, omega, distfeet);
+			if (wf->zbuf[i + j * wf->width] == 0)
+			{
+				distfeet = (wf->pl->height * wf->dist) /
+					((j - wf->height / 2) * (SQLEN / 2) * cos(degtorad(omega)));
+				if (distfeet < wf->light_distance * 0.75)
+					put_pixel(wf, i + j * wf->width, find_floor(wf, omega, distfeet), distfeet, 0);
+			}
 			j++;
 		}
 		i++;
@@ -268,70 +261,79 @@ void movement(t_wf *wf)
 
 	if (wf->down)
 	{
-		x = wf->pl->posx;
-		y = wf->pl->posy;
-		x -= cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			x = wf->pl->posx;
-		y += sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			y = wf->pl->posy;
-		wf->pl->posx = x;
-		wf->pl->posy = y;
+		x = wf->pl->pos.x;
+		y = wf->pl->pos.y;
+		x -= cos(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+		
+		//if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			x = wf->pl->pos.x;
+		y += sin(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+		//if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			y = wf->pl->pos.y;
+		wf->pl->pos.x = x;
+		wf->pl->pos.y = y;
 	}
 
 	if (wf->up)
 	{
-		x = wf->pl->posx;
-		y = wf->pl->posy;
-		x += cos(degtorad(wf->pl->angle)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			x = wf->pl->posx;
-		y -= sin(degtorad(wf->pl->angle)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			y = wf->pl->posy;
-		wf->pl->posx = x;
-		wf->pl->posy = y;
+		x = wf->pl->pos.x;
+		y = wf->pl->pos.y;
+		x += cos(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+		//if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			x = wf->pl->pos.x;
+		y -= sin(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+		//if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			y = wf->pl->pos.y;
+		wf->pl->pos.x = x;
+		wf->pl->pos.y = y;
 	}
 
 	if (wf->strafel)
 	{
-		x = wf->pl->posx;
-		y = wf->pl->posy;
-		x += cos(degtorad(wf->pl->angle + 90)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-        	x = wf->pl->posx;
-		y -= sin(degtorad(wf->pl->angle + 90)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			y = wf->pl->posy;
-		wf->pl->posx = x;
-		wf->pl->posy = y;
+		x = wf->pl->pos.x;
+		y = wf->pl->pos.y;
+		x += cos(degtorad(wf->pl->angle + 90)) * wf->pl->speed * wf->frametime;
+		//if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			x = wf->pl->pos.x;
+		y -= sin(degtorad(wf->pl->angle + 90)) * wf->pl->speed * wf->frametime;
+		//if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			y = wf->pl->pos.y;
+		wf->pl->pos.x = x;
+		wf->pl->pos.y = y;
 	}
 
 	if (wf->strafer)
 	{
-		x = wf->pl->posx;
-		y = wf->pl->posy;
-		x += cos(degtorad(wf->pl->angle - 90)) * wf->pl->speed;
-		if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-        	x = wf->pl->posx;
-		y -= sin(degtorad(wf->pl->angle - 90)) * wf->pl->speed;
-		if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
-			y = wf->pl->posy;
-		wf->pl->posx = x;
-		wf->pl->posy = y;
+		x = wf->pl->pos.x;
+		y = wf->pl->pos.y;
+		x += cos(degtorad(wf->pl->angle - 90)) * wf->pl->speed * wf->frametime;
+		//if (x < 0 || x >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			x = wf->pl->pos.x;
+		y -= sin(degtorad(wf->pl->angle - 90)) * wf->pl->speed * wf->frametime;
+		//if (y < 0 || y >= wf->map_size * SQLEN || wf->map[(int)x / SQLEN][(int)y / SQLEN] == 1)
+		if (check_collision(wf, new_v2(x, y)) == 0)
+			y = wf->pl->pos.y;
+		wf->pl->pos.x = x;
+		wf->pl->pos.y = y;
 	}
 
 	if (wf->right)
 	{
-            wf->pl->angle -= wf->pl->turn;
+            wf->pl->angle -= wf->pl->turn * wf->frametime;
             if (wf->pl->angle < 0)
                 wf->pl->angle += 360;
         }
 
 	if (wf->left)
         {
-            wf->pl->angle += wf->pl->turn;
+            wf->pl->angle += wf->pl->turn * wf->frametime;
             if (wf->pl->angle >= 360)
                 wf->pl->angle -= 360;
         }
@@ -400,6 +402,33 @@ void	handle_events(t_wf *wf)
 	}
 }
 
+void	calculate_frametime(t_wf *wf)
+{
+	wf->frametime = (float)(wf->ftime - wf->ftime_old) / (float)1000;
+	printf("FPS: %f\n", 1 / wf->frametime);
+}
+
+void	time_update(t_wf *wf)
+{
+	wf->anim_frame++;
+	if (wf->anim_frame > 1)
+		wf->anim_frame = 0;
+}
+
+void	render(t_wf *wf)
+{
+	memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
+	//Reset z-buf
+	memset(wf->zbuf, 0, wf->width * wf->height * sizeof(int));
+	movement(wf);
+	//floor_and_ceiling(wf);
+	draw_walls(wf);
+	draw_floor(wf);
+	draw_ceiling(wf);
+	draw_objects(wf);
+	update(wf, 0);
+}
+
 int main(int ac, char **av)
 {
 	t_wf		*wf;
@@ -446,19 +475,22 @@ int main(int ac, char **av)
 
 	while (1)
 	{
-	    if (wf->strafel || wf->strafer || wf->down || wf->up || wf->right || wf->left)
-        {
-            memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
-			//Reset z-buf
-			memset(wf->zbuf, 0, wf->width * wf->height * sizeof(int));
-            movement(wf);
-			floor_and_ceiling(wf);
-			draw_walls(wf);
-			draw_floor(wf);
-			draw_ceiling(wf);
-			draw_objects(wf);
-			update(wf, 0);
-        }
+		wf->ftime_old = wf->ftime;
+		wf->ftime = SDL_GetTicks();
+		wf->time += wf->frametime;
+		if (wf->flash > 0)
+		{
+			wf->flash -= wf->frametime;
+			CLAMP(wf->flash, 0, 1);
+		}
+		if (wf->time >= 0.5)
+		{
+			time_update(wf);
+			wf->time = 0;
+		}
+		//if (wf->strafel || wf->strafer || wf->down || wf->up || wf->right || wf->left)
+		calculate_frametime(wf);
+		render(wf);
 		handle_events(wf);
 	}
 	return (0);
