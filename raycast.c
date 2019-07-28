@@ -6,7 +6,7 @@
 /*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/03 15:17:55 by njacobso          #+#    #+#             */
-/*   Updated: 2019/07/28 22:27:34 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/29 00:28:39 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ int		get_map(t_wf *data, int x, int y)
 void	draw_sky(t_wf *wf)
 {
 	float	scale;
-	int i;
-	int j;
-	int x;
-	int y;
+	int		i;
+	int		j;
+	int		x;
+	int		y;
 
 	scale = (float)wf->height / 64.0;
 	i = 0;
@@ -40,8 +40,8 @@ void	draw_sky(t_wf *wf)
 		{
 			y = i / scale;
 			x = (int)wrap(((int)(j / scale) - (int)(wf->pl->angle)) % 32, 32);
-			float shading = wf->light_distance / (SQLEN * 4);
-			wf->sdl->pix[j + i * wf->width] = rgb_multiply(get_tx(wf, TXT_SKY, x, y), shading);
+			wf->sdl->pix[j + i * wf->width] = rgb_multiply(get_tx(wf,
+						TXT_SKY, x, y), wf->light_distance / (SQLEN * 4));
 			j++;
 		}
 		i++;
@@ -55,44 +55,28 @@ void	draw_sky(t_wf *wf)
 **	side - side of hit obj, value is between 0 and 3.
 */
 
-int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int mask)
+int		raycast(t_wf *data, t_ray *r, int mask)
 {
 	t_v2	dir;
 	float	step;
 	int		map_obj;
 
-	hit_pos->x = data->pl->pos.x;
-	hit_pos->y = data->pl->pos.y;
-	dir = new_v2(cos(degtorad(angle)), -sin(degtorad(angle)));
-	*dist = 0;
-	while (*dist < data->light_distance + SQLEN / 2)
+	r->hit_pos->x = data->pl->pos.x;
+	r->hit_pos->y = data->pl->pos.y;
+	dir = new_v2(cos(degtorad(r->angle)), -sin(degtorad(r->angle)));
+	*(r->dist) = 0;
+	while (*(r->dist) < data->light_distance + SQLEN / 2)
 	{
-		if (*dist > SQLEN * 4)
-			step = 6.4f;
-		else if (*dist > SQLEN * 2)
-			step = .4f;
-		else if (*dist < SQLEN)
-			step = 0.1f;
-		else
-			step = 0.2f;
-		*dist += step;
-		if (*dist >= data->light_distance + SQLEN / 2)
+		step = find_step(r->dist);
+		*(r->dist) += step;
+		if (*(r->dist) >= data->light_distance + SQLEN / 2)
 			return (0);
-		hit_pos->x += dir.x * step;
-		hit_pos->y += dir.y * step;
-		map_obj = get_map(data, (hit_pos->x / SQLEN), (hit_pos->y / SQLEN));
+		r->hit_pos->x += dir.x * step;
+		r->hit_pos->y += dir.y * step;
+		map_obj = get_map(data, (r->hit_pos->x / SQLEN),
+				(r->hit_pos->y / SQLEN));
 		if (map_obj == mask || (map_obj && map_obj != 1 && mask == 0))
-		{
-			if ((int)(hit_pos->x - dir.x) / SQLEN > (int)hit_pos->x / SQLEN)
-				*side = 0;
-			else if ((int)(hit_pos->x - dir.x) / SQLEN < (int)hit_pos->x / SQLEN)
-				*side = 1;
-			else if ((int)(hit_pos->y - dir.y) / SQLEN > (int)hit_pos->y / SQLEN)
-				*side = 2;
-			else
-				*side = 3;
-			return (map_obj);
-		}
+			return (find_side(r->side, r->hit_pos, dir, map_obj));
 		if (map_obj == -1)
 			return (0);
 	}
@@ -102,32 +86,30 @@ int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int
 void	draw_walls(t_wf *wf)
 {
 	int		i;
-	float	dist;
-	t_v2	hit;
-	float	omega;
-	int		side;
+	t_ray	r;
 
-	omega = wf->pl->angle + wf->pl->fov / 2;
-	if (omega >= 360)
-		omega -= 360;
-	i = 0;
-	while (i < wf->width)
+	r = new_ray(wf->pl->angle + wf->pl->fov / 2, 0, new_v2(0, 0), 0);
+	if (r.angle >= 360)
+		r.angle -= 360;
+	i = -1;
+	while (++i < wf->width)
 	{
-		if (raycast(wf, omega, &dist, &hit, &side, 1))
+		if (raycast(wf, &r, 1))
 		{
-			dist = dist * cos(degtorad(omega - wf->pl->angle));
-			draw_wall(wf, new_wall(i, dist, side, side > 1 ? hit.x : hit.y));
+			*(r.dist) = *(r.dist) * cos(degtorad(r.angle - wf->pl->angle));
+			draw_wall(wf, new_wall(i, *(r.dist), *(r.side), *(r.side) > 1 ?
+						r.hit_pos->x : r.hit_pos->y));
 		}
 		else
 		{
 			wf->floor[i] = wf->height / 2;
 			wf->ceil[i] = wf->height / 2;
 		}
-		omega -= wf->angw;
-		if (omega < 0)
-			omega += 360;
-		i++;
+		r.angle -= wf->angw;
+		if (r.angle < 0)
+			r.angle += 360;
 	}
+	del_ray(&r);
 }
 
 void	draw_object(t_wf *wf, t_obj obj, int x, int dist, float size)
@@ -152,11 +134,8 @@ void	draw_object(t_wf *wf, t_obj obj, int x, int dist, float size)
 			{
 				int a = (j - x) / size;
 				int b = (i - y) / size;
-				pix.index = j + wf->width * i;
+				pix = new_pix(j + wf->width * i, dist, 1, 1);
 				pix.color = get_tx(wf, obj.tx, a, b);
-				pix.dist = dist;
-				pix.zbuf = 1;
-				pix.wall = 1;
 				put_pixel(wf, pix);
 			}
 			j++;

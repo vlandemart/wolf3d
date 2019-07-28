@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 22:28:06 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/29 00:25:16 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,14 @@ typedef struct	s_wall
 	double	dist;
 	double	param;
 }				t_wall;
+
+typedef struct	s_ray
+{
+	float	angle;
+	float	*dist;
+	t_v2	*hit_pos;
+	int		*side;
+}				t_ray;
 
 typedef struct	s_pix
 {
@@ -128,6 +136,7 @@ double			ran(double l, double h);
 double			min(double a, double b);
 double			max(double a, double b);
 double			clamp(double a, double mi, double ma);
+double			wrap(double a, double wr);
 
 t_v2			new_v2(float x, float y);
 t_wall			new_wall(int i, double dist, int side, double param);
@@ -142,8 +151,9 @@ void			prepare_window(t_wf *wf);
 void			floor_and_ceiling(t_wf *wf);
 void			malloc_check(t_wf *wf, void *addr);
 
+void			new_map(t_wf *wf);
 int				read_map(t_wf *data, char *file_name);
-int				*read_texture(char *file_name);
+int				*read_texture(t_wf *wf, char *file_name);
 
 int				rgb_multiply(int rgb, float value);
 int				rgb_mix(int rgb1, int rgb2, float percent);
@@ -161,7 +171,7 @@ void			strafe_right(t_wf *wf);
 void			put_pixel(t_wf *wf, t_pix pix);
 void			render(t_wf *wf);
 
-int				raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int mask);
+int				raycast(t_wf *data, t_ray *r, int mask);
 void			draw_wall(t_wf *wf, t_wall wall);
 void			draw_walls(t_wf *wf);
 void			draw_objects(t_wf *wf);
@@ -169,9 +179,19 @@ void			draw_ceilfloor(t_wf *wf);
 int				floor_ceil(t_wf *wf, double omega, double distfeet, int txt);
 void			draw_sky(t_wf *wf);
 int				check_collision(t_wf *wf, t_v2 pos);
+float			find_step(float *dist);
+int				find_side(int *side, t_v2 *hit_pos, t_v2 dir, int map_obj);
+t_ray			new_ray(float angle, float dist, t_v2 hit_pos, int side);
+void			del_ray(t_ray *r);
 
 void			init_textures(t_wf *wf);
 int				get_tx(t_wf *wf, int tx_index, int x, int y);
+void			txt_type(t_obj *obj, int type);
+int				create_obj(t_wf *wf, int x, int y, int type);
+void			find_objs(t_wf *wf, char n, int i, int j);
+char			*from_file(int fd, char *str, t_v2 *map_size, char *map);
+void			txt_read(char *str, int *texture, char *tmp);
+int				destroy_obj(void *data_wf, void *data_obj);
 
 int				cycle(t_wf *wf);
 void			handle_events(t_wf *wf);

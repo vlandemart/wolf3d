@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:35:24 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 22:13:38 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 22:36:51 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,13 @@ float	distance(t_v2 pos1, t_v2 pos2)
 **	0 if no collision
 */
 
-int	check_collision(t_wf *wf, t_v2 pos)
+int		check_collision(t_wf *wf, t_v2 pos)
 {
 	t_list	*objs;
 	t_obj	*obj;
 
-	if (pos.x < 0 || pos.y < 0 || pos.x > wf->map_size * SQLEN || pos.y > wf->map_size * SQLEN)
+	if (pos.x < 0 || pos.y < 0 || pos.x > wf->map_size * SQLEN ||
+			pos.y > wf->map_size * SQLEN)
 		return (0);
 	if (wf->map[(int)pos.x / SQLEN][(int)pos.y / SQLEN] == 1)
 		return (0);

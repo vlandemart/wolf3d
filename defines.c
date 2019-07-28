@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 22:09:30 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 22:24:48 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 22:36:13 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,12 @@ double	min(double a, double b)
 	return (a > b ? b : a);
 }
 
-double max(double a, double b)
+double	max(double a, double b)
 {
 	return (a > b ? a : b);
 }
 
-double clamp(double a, double mi, double ma)
+double	clamp(double a, double mi, double ma)
 {
 	return (min(max(a, mi), ma));
 }

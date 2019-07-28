@@ -5,17 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/06/28 15:38:52 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 22:30:24 by ydavis           ###   ########.fr       */
+/*   Created: 2019/07/28 22:35:05 by ydavis            #+#    #+#             */
+/*   Updated: 2019/07/28 22:35:07 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
 
-int main(int ac, char **av)
+int	main(int ac, char **av)
 {
-	t_wf		*wf;
-
-	wf = init_wf(ac, av);
-	return (cycle(wf));
+	return (cycle(init_wf(ac, av)));
 }

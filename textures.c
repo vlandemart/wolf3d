@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 21:12:01 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 21:12:07 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 22:57:35 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,15 +32,15 @@ int		get_tx(t_wf *wf, int tx_index, int x, int y)
 
 void	init_textures(t_wf *wf)
 {
-	wf->textures = (int**)malloc(sizeof(int*) * 10);
-	wf->textures[0] = read_texture("texture_creator/brick.wolf");
-	wf->textures[1] = read_texture("texture_creator/wood.wolf");
-	wf->textures[2] = read_texture("texture_creator/stone.wolf");
-	wf->textures[3] = read_texture("texture_creator/img.wolf");
-	wf->textures[4] = read_texture("texture_creator/lamp.wolf");
-	wf->textures[5] = read_texture("texture_creator/box.wolf");
-	wf->textures[6] = read_texture("texture_creator/health.wolf");
-	wf->textures[7] = read_texture("texture_creator/vent1.wolf");
-	wf->textures[8] = read_texture("texture_creator/vent2.wolf");
-	wf->textures[9] = read_texture("texture_creator/sky.wolf");
+	malloc_check(wf, wf->textures = (int**)malloc(sizeof(int*) * 10));
+	wf->textures[0] = read_texture(wf, "texture_creator/brick.wolf");
+	wf->textures[1] = read_texture(wf, "texture_creator/wood.wolf");
+	wf->textures[2] = read_texture(wf, "texture_creator/stone.wolf");
+	wf->textures[3] = read_texture(wf, "texture_creator/img.wolf");
+	wf->textures[4] = read_texture(wf, "texture_creator/lamp.wolf");
+	wf->textures[5] = read_texture(wf, "texture_creator/box.wolf");
+	wf->textures[6] = read_texture(wf, "texture_creator/health.wolf");
+	wf->textures[7] = read_texture(wf, "texture_creator/vent1.wolf");
+	wf->textures[8] = read_texture(wf, "texture_creator/vent2.wolf");
+	wf->textures[9] = read_texture(wf, "texture_creator/sky.wolf");
 }

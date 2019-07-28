@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 20:24:21 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 22:09:25 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 23:41:11 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,5 +28,11 @@ int		close_app_s(t_wf *wf, char *str)
 void	malloc_check(t_wf *wf, void *addr)
 {
 	if (!addr)
-		exit(close_app_s(wf, "Unpredicted error with malloc! Exiting..."));
+	{
+		if (wf)
+			exit(close_app_s(wf, "Unexpected error with malloc! Exiting..."));
+		SDL_Quit();
+		ft_putendl("Unexpected error with malloc! Exiting...");
+		exit(1);
+	}
 }
