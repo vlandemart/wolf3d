@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 22:13:12 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 22:28:06 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,6 @@
 # include <fcntl.h>
 # include "lib/libft/libft.h"
 # define SQLEN 64
-//Function defines
-/*
-# define RAN(l, h) (l + (h - l) * ((double)rand() / RAND_MAX * 2.0 - 1.0))
-# define MIN(a, b) ((a < b) ? a : b)
-# define MAX(a, b) ((a > b) ? a : b)
-# define CLAMP(a, mi, ma) MIN(MAX(a, mi), ma)
-*/
 //Texture defines
 # define TXT_BRICK 0
 # define TXT_WOOD 1
@@ -35,6 +28,7 @@
 # define TXT_BOX 5
 # define TXT_HEALTH 6
 # define TXT_VENT 7
+# define TXT_SKY 9
 
 typedef struct	s_v2
 {
@@ -173,6 +167,7 @@ void			draw_walls(t_wf *wf);
 void			draw_objects(t_wf *wf);
 void			draw_ceilfloor(t_wf *wf);
 int				floor_ceil(t_wf *wf, double omega, double distfeet, int txt);
+void			draw_sky(t_wf *wf);
 int				check_collision(t_wf *wf, t_v2 pos);
 
 void			init_textures(t_wf *wf);

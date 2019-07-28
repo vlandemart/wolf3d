@@ -32,7 +32,7 @@ int		get_tx(t_wf *wf, int tx_index, int x, int y)
 
 void	init_textures(t_wf *wf)
 {
-	wf->textures = (int**)malloc(sizeof(int*) * 9);
+	wf->textures = (int**)malloc(sizeof(int*) * 10);
 	wf->textures[0] = read_texture("texture_creator/brick.wolf");
 	wf->textures[1] = read_texture("texture_creator/wood.wolf");
 	wf->textures[2] = read_texture("texture_creator/stone.wolf");
@@ -42,4 +42,5 @@ void	init_textures(t_wf *wf)
 	wf->textures[6] = read_texture("texture_creator/health.wolf");
 	wf->textures[7] = read_texture("texture_creator/vent1.wolf");
 	wf->textures[8] = read_texture("texture_creator/vent2.wolf");
+	wf->textures[9] = read_texture("texture_creator/sky.wolf");
 }
