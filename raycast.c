@@ -16,8 +16,33 @@ int		get_map(t_wf *data, int x, int y)
 {
 	if (x >= 0 && y >= 0 && x < data->map_size && y < data->map_size)
 		return (data->map[x][y]);
-	printf("%d:%d is out of bounds\n", x, y);
+	//printf("%d:%d is out of bounds\n", x, y);
 	return (-1);
+}
+
+void	draw_sky(t_wf *wf)
+{
+	float	scale;
+	int i;
+	int j;
+	int x;
+	int y;
+
+	scale = (float)wf->height / 64.0;
+	i = 0;
+	while (i < (wf->height / 2) - 100)
+	{
+		j = 0;
+		while (j < wf->width)
+		{
+			y = i / scale;
+			x = WRAP(((int)(j / scale) - (int)(wf->pl->angle)) % 32, 32);
+			float shading = wf->light_distance / (SQLEN * 4);
+			wf->sdl->pix[j + i * wf->width] = rgb_multiply(get_tx(wf, TXT_SKY, x, y), shading);
+			j++;
+		}
+		i++;
+	}
 }
 
 /*
@@ -37,7 +62,7 @@ int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int
 	dir = new_v2(cos(degtorad(angle)), -sin(degtorad(angle)));
 	*dist = 0;
 	//step = 1;
-	while (*dist < SQLEN * 8)
+	while (*dist < data->light_distance + SQLEN / 2)
 	{
 		if (*dist > SQLEN * 4)
 			step = 6.4f;
@@ -48,7 +73,7 @@ int		raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int
 		else
 			step = 0.2f;
 		*dist += step;
-		if (*dist >= data->light_distance)
+		if (*dist >= data->light_distance + SQLEN / 2)
 			return (0);
 		hit_pos->x += dir.x * step;
 		hit_pos->y += dir.y * step;
@@ -151,18 +176,21 @@ void	draw_objects(t_wf *wf)
 		float dy = obj->pos_real.y - wf->pl->pos.y;
 		float dist = sqrt(dx * dx + dy * dy);
 
-		float angle = atan2(dx, dy) - degtorad(wf->pl->angle);
-		if (angle < -M_PI)
-			angle += 2.0 * M_PI;
-		if (angle > M_PI)
-			angle -= 2.0 * M_PI;
-		angle -= M_PI / 2;
-
-		if (fabs(radtodeg(angle)) <= (wf->pl->fov / 2 + 10) && obj->enabled)
+		if (dist < wf->light_distance)
 		{
-			int x = wf->width / 2 - tan(angle) * wf->dist;
-			float size = (float)wf->dist / (cos(angle) * dist);
-			draw_object(wf, *obj, x, dist, size);
+			float angle = atan2(dx, dy) - degtorad(wf->pl->angle);
+			if (angle < -M_PI)
+				angle += 2.0 * M_PI;
+			if (angle > M_PI)
+				angle -= 2.0 * M_PI;
+			angle -= M_PI / 2;
+
+			if (fabs(radtodeg(angle)) <= (wf->pl->fov / 2 + 10) && obj->enabled)
+			{
+				int x = wf->width / 2 - tan(angle) * wf->dist;
+				float size = (float)wf->dist / (cos(angle) * dist);
+				draw_object(wf, *obj, x, dist, size);
+			}
 		}
 
 		objs = objs->next;

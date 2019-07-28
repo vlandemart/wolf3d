@@ -24,6 +24,7 @@
 # define MIN(a, b) ((a < b) ? a : b)
 # define MAX(a, b) ((a > b) ? a : b)
 # define CLAMP(a, mi, ma) MIN(MAX(a, mi), ma)
+# define WRAP(a, wr) ((a < 0) ? a + wr : ((a > wr - 1) ? a - wr : a))
 //Texture defines
 # define TXT_BRICK 0
 # define TXT_WOOD 1
@@ -33,6 +34,7 @@
 # define TXT_BOX 5
 # define TXT_HEALTH 6
 # define TXT_VENT 7
+# define TXT_SKY 9
 
 typedef struct	s_v2
 {
@@ -137,6 +139,7 @@ int				raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, i
 void			draw_wall(t_wf *wf, int i, double dist, int check, double param);
 void			draw_walls(t_wf *wf);
 void			draw_objects(t_wf *wf);
+void			draw_sky(t_wf *wf);
 int				check_collision(t_wf *wf, t_v2 pos);
 
 void			init_textures(t_wf *wf);

@@ -106,11 +106,12 @@ void	put_pixel(t_wf *wf, t_pix pix)
 			return ;
 		wf->zbuf[pix.index] = pix.dist;
 	}
+	col = pix.color;
 	if (pix.wall)
 		shading = 1 - (MIN(pix.dist, wf->light_distance) / wf->light_distance);
 	else
 		shading = 1 - (MIN(pix.dist, wf->light_distance * 0.75) / (wf->light_distance * 0.75));
-	col = rgb_multiply(pix.color, shading);
+	col = rgb_multiply(col, shading);
 	if (wf->flash > 0)
 		col = rgb_mix(0xffff00, col, wf->flash);
 	wf->sdl->pix[pix.index] = col;
@@ -251,7 +252,7 @@ void	draw_floor(t_wf *wf)
 			{
 				distfeet = (wf->pl->height * wf->dist) /
 					((j - wf->height / 2) * (SQLEN / 2) * cos(degtorad(omega)));
-				if (distfeet < wf->light_distance * 0.75)
+				if (distfeet < wf->light_distance)
 				{
 					pix.index = i + wf->width * j;
 					pix.color = find_floor(wf, omega, distfeet);
@@ -431,6 +432,8 @@ void	time_update(t_wf *wf)
 	wf->anim_frame++;
 	if (wf->anim_frame > 1)
 		wf->anim_frame = 0;
+	if (RAN(0, 10) > 9)
+		wf->light_distance += SQLEN;
 }
 
 void	render(t_wf *wf)
@@ -438,9 +441,11 @@ void	render(t_wf *wf)
 	memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
 	memset(wf->zbuf, 0, wf->width * wf->height * sizeof(int));
 	movement(wf);
+	//floor_and_ceiling(wf);
+	draw_sky(wf);
 	draw_walls(wf);
 	draw_floor(wf);
-	draw_ceiling(wf);
+	//draw_ceiling(wf);
 	draw_objects(wf);
 	update(wf, 0);
 }
@@ -504,6 +509,9 @@ int main(int ac, char **av)
 			time_update(wf);
 			wf->time = 0;
 		}
+		if (wf->light_distance > SQLEN * 2.5f)
+			wf->light_distance -= SQLEN * wf->frametime;
+		//if (wf->strafel || wf->strafer || wf->down || wf->up || wf->right || wf->left)
 		calculate_frametime(wf);
 		render(wf);
 		handle_events(wf);
