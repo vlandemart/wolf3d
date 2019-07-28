@@ -6,7 +6,7 @@
 /*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/03 15:17:55 by njacobso          #+#    #+#             */
-/*   Updated: 2019/07/24 19:01:02 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 19:56:43 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,11 +104,12 @@ void	draw_walls(t_wf *wf)
 
 void	draw_object(t_wf *wf, t_obj obj, int x, int dist, float size)
 {
-	int i;
-	int j;
-	int ex;
-	int ey;
-	int y = (wf->height - 32 * size) / 2;
+	int		i;
+	int		j;
+	int		ex;
+	int		ey;
+	int		y = (wf->height - 32 * size) / 2;
+	t_pix	pix;
 
 	x -= 16 * size;
 	ex = x + 32 * size;
@@ -123,7 +124,12 @@ void	draw_object(t_wf *wf, t_obj obj, int x, int dist, float size)
 			{
 				int a = (j - x) / size;
 				int b = (i - y) / size;
-				put_pixel(wf, j + wf->width * i, get_tx(wf, obj.tx, a, b), dist, 1);
+				pix.index = j + wf->width * i;
+				pix.color = get_tx(wf, obj.tx, a, b);
+				pix.dist = dist;
+				pix.zbuf = 1;
+				pix.wall = 1;
+				put_pixel(wf, pix);
 			}
 			j++;
 		}

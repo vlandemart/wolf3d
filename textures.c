@@ -15,7 +15,7 @@ int		get_tx(t_wf *wf, int tx_index, int x, int y)
 {
 	if (tx_index == TXT_IMG)
 		tx_index = anim_tx(wf);
-	return wf->textures[tx_index][x + y * 32];
+	return (wf->textures[tx_index][x + y * 32]);
 }
 
 void	init_textures(t_wf *wf)

@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/24 20:47:41 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/28 19:52:05 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,15 @@ typedef struct	s_v2
 	float		x;
 	float		y;
 }				t_v2;
+
+typedef struct	s_pix
+{
+	int		index;
+	int		color;
+	int		zbuf;
+	int		wall;
+	double	dist;
+}				t_pix;
 
 typedef struct	s_pl
 {
@@ -121,7 +130,8 @@ int				rgb_mix(int rgb1, int rgb2, float percent);
 
 void			update(t_wf *wf, int flag);
 
-void			put_pixel(t_wf *wf, int index, int color, double dist, int zbuf);
+//void			put_pixel(t_wf *wf, int index, int color, double dist, int zbuf);
+void			put_pixel(t_wf *wf, t_pix pix);
 
 int				raycast(t_wf *data, float angle, float *dist, t_v2 *hit_pos, int *side, int mask);
 void			draw_wall(t_wf *wf, int i, double dist, int check, double param);
