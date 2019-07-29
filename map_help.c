@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 22:42:57 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 23:38:56 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 02:07:27 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ void	txt_type(t_obj *obj, int type)
 void	new_map(t_wf *wf)
 {
 	int i;
+	int j;
 
 	ft_putendl("Allocating map...");
 	malloc_check(wf, wf->map = (int**)malloc(sizeof(int*) * wf->map_size));
@@ -44,7 +45,12 @@ void	new_map(t_wf *wf)
 	while (i < wf->map_size)
 	{
 		malloc_check(wf, wf->map[i] = (int*)malloc(sizeof(int) * wf->map_size));
-		ft_bzero(wf->map[i], sizeof(int) * wf->map_size);
+		j = 0;
+		while (j < wf->map_size)
+		{
+			wf->map[i][j] = 1;
+			j++;
+		}
 		i++;
 	}
 	ft_putendl("Binding map values...");

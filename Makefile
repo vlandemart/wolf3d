@@ -6,13 +6,14 @@
 #    By: njacobso <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/04/19 16:28:47 by njacobso          #+#    #+#              #
-#    Updated: 2019/07/30 00:10:46 by ydavis           ###   ########.fr        #
+#    Updated: 2019/07/30 00:35:23 by ydavis           ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
 CC			= gcc
 NAME		= wolf3d
-CFLAGS		= -o3 -Wall -Werror -Wextra -F . -framework SDL2 -I ./SDL2.framework/Versions/A/Headers
+CFLAGS		= -o3 -Wall -Werror -Wextra -F ~/Library/Frameworks -framework SDL2\
+			  -I ~/Library/Frameworks/SDL2.framework/Versions/A/Headers
 INCLUDES	= include
 SRC			= args.c collisions.c defines.c degrad.c drawing.c events.c\
 			  floorceil.c init.c main.c map_help.c movement.c objects.c\

@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:33:23 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/29 22:31:11 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 02:16:27 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int		bind_map(t_wf *data, char *map)
 			j++;
 		}
 		while (j < data->map_size)
-			data->map[i][j++] = 0;
+			data->map[i][j++] = 1;
 		n++;
 		i++;
 	}
