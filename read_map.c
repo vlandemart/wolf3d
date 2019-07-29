@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:33:23 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/29 21:34:44 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/29 22:31:11 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ int		create_obj(t_wf *wf, int x, int y, int type)
 	if (type == 4)
 		wf->score_max += 1;
 	ft_lstadd(&wf->objects, ft_lstnew(obj, sizeof(t_obj)));
+	free(obj);
 	return (1);
 }
 

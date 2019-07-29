@@ -6,7 +6,7 @@
 #    By: njacobso <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/11/20 11:22:05 by njacobso          #+#    #+#              #
-#    Updated: 2019/02/07 19:50:51 by njacobso         ###   ########.fr        #
+#    Updated: 2019/07/29 23:35:10 by ydavis           ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -19,16 +19,16 @@ all: $(NAME)
 
 # This won't run if the .o files don't exist or are not modified
 $(NAME): $(OBJ)
-	ar rcs $(NAME) $(OBJ)
+	@ar rcs $(NAME) $(OBJ)
 
 # This won't run if the source files don't exist or are not modified
 $(OBJ): $(FILES)
-	gcc $(CFLAGS) $(FILES)
+	@gcc $(CFLAGS) $(FILES)
 
 clean:
-	rm -f $(OBJ)
+	@rm -f $(OBJ)
 
 fclean: clean
-	rm -f $(NAME)
+	@rm -f $(NAME)
 
 re: fclean all

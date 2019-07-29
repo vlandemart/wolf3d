@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 20:10:55 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 22:04:11 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 00:12:32 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,7 @@ void	init_map(t_wf *wf)
 void	init_player(t_wf *wf)
 {
 	malloc_check(wf, wf->pl = (t_pl*)malloc(sizeof(t_pl)));
-	wf->pl->pos.x = 128;
-	wf->pl->pos.y = 128;
+	player_find(wf);
 	wf->pl->angle = 0;
 	wf->pl->fov = 60;
 	wf->pl->turn = 90;

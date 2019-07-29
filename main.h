@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/29 19:21:30 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 00:10:20 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,7 @@ t_pix			new_pix(int index, double dist, int zbuf, int wall);
 t_wf			*init_wf(int ac, char **av);
 void			init_map(t_wf *wf);
 void			init_player(t_wf *wf);
+void			player_find(t_wf *wf);
 void			init_floorceil(t_wf *wf);
 void			init_args(t_wf *wf, int ac, char **av);
 void			prepare_window(t_wf *wf);
