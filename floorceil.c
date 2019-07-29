@@ -64,10 +64,10 @@ void	check_floor(t_wf *wf, int i, int j, double omega)
 	{
 		distfeet = (wf->pl->height * wf->dist) /
 			((j - wf->height / 2) * (SQLEN / 2) * cos(degtorad(omega)));
-		if (distfeet < wf->light_distance * 0.75)
+		if (distfeet < wf->light_distance)
 		{
 			pix = new_pix(i + j * wf->width, distfeet, 0, 0);
-			pix.color = floor_ceil(wf, omega, distfeet, TXT_WOOD);
+			pix.color = floor_ceil(wf, omega, distfeet, TXT_FLOOR);
 			put_pixel(wf, pix);
 		}
 	}
@@ -84,11 +84,13 @@ void	draw_ceilfloor(t_wf *wf)
 	while (i < wf->width)
 	{
 		j = 0;
+		/*
 		while (j < wf->ceil[i])
 		{
 			check_ceiling(wf, i, j, omega);
 			j++;
 		}
+		*/
 		j = wf->floor[i];
 		while (j < wf->height)
 		{

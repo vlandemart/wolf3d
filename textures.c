@@ -14,7 +14,7 @@
 
 int		anim_tx(t_wf *wf)
 {
-	return (TXT_VENT + wf->anim_frame);
+	return (TXT_VENT_1 + wf->anim_frame);
 }
 
 /*
@@ -32,15 +32,16 @@ int		get_tx(t_wf *wf, int tx_index, int x, int y)
 
 void	init_textures(t_wf *wf)
 {
-	malloc_check(wf, wf->textures = (int**)malloc(sizeof(int*) * 10));
-	wf->textures[0] = read_texture(wf, "texture_creator/brick.wolf");
-	wf->textures[1] = read_texture(wf, "texture_creator/wood.wolf");
-	wf->textures[2] = read_texture(wf, "texture_creator/stone.wolf");
-	wf->textures[3] = read_texture(wf, "texture_creator/img.wolf");
-	wf->textures[4] = read_texture(wf, "texture_creator/lamp.wolf");
-	wf->textures[5] = read_texture(wf, "texture_creator/box.wolf");
-	wf->textures[6] = read_texture(wf, "texture_creator/health.wolf");
-	wf->textures[7] = read_texture(wf, "texture_creator/vent1.wolf");
-	wf->textures[8] = read_texture(wf, "texture_creator/vent2.wolf");
-	wf->textures[9] = read_texture(wf, "texture_creator/sky.wolf");
+	wf->textures = (int**)malloc(sizeof(int*) * 30);
+	wf->textures[TXT_SKY]		= read_texture(wf, "texture_creator/sky.wolf");
+	wf->textures[TXT_BRICK]		= read_texture(wf, "texture_creator/brick.wolf");
+	wf->textures[TXT_WOOD]		= read_texture(wf, "texture_creator/wood.wolf");
+	wf->textures[TXT_STONE]		= read_texture(wf, "texture_creator/stone.wolf");
+	wf->textures[TXT_IMG]		= read_texture(wf, "texture_creator/img.wolf");
+	wf->textures[TXT_VENT_1]	= read_texture(wf, "texture_creator/vent1.wolf");
+	wf->textures[TXT_VENT_2]	= read_texture(wf, "texture_creator/vent2.wolf");
+	wf->textures[TXT_FLOOR]		= read_texture(wf, "texture_creator/floor.wolf");
+	wf->textures[TXT_LAMP]		= read_texture(wf, "texture_creator/lamp.wolf");
+	wf->textures[TXT_BOX]		= read_texture(wf, "texture_creator/box.wolf");
+	wf->textures[TXT_HEALTH]	= read_texture(wf, "texture_creator/health.wolf");
 }

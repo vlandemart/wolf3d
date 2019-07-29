@@ -30,9 +30,15 @@ int		destroy_obj(void *data_wf, void *data_obj)
 		objs = objs->next;
 	}
 	wf->flash = 0.7;
+	wf->score += 1;
+	ft_putstr("Score: ");
+	ft_putnbr(wf->score);
+	ft_putstr("/");
+	ft_putnbr(wf->score_max);
+	ft_putstr("\n");
+	if (wf->score == wf->score_max)
+		ft_putstr("You won!\n");
 	return (0);
-	//TODO - Score update
-	//TODO - Visual feedback
 }
 
 int		create_obj(t_wf *wf, int x, int y, int type)
@@ -46,6 +52,8 @@ int		create_obj(t_wf *wf, int x, int y, int type)
 	obj->instance_index = x + y * wf->map_size;
 	obj->enabled = 1;
 	txt_type(obj, type);
+	if (type == 4)
+		wf->score_max += 1;
 	ft_lstadd(&wf->objects, ft_lstnew(obj, sizeof(t_obj)));
 	return (1);
 }

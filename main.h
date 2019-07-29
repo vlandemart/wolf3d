@@ -20,15 +20,17 @@
 # include "lib/libft/libft.h"
 # define SQLEN 64
 //Texture defines
-# define TXT_BRICK 0
-# define TXT_WOOD 1
-# define TXT_STONE 2
-# define TXT_IMG 3
-# define TXT_LAMP 4
-# define TXT_BOX 5
-# define TXT_HEALTH 6
-# define TXT_VENT 7
-# define TXT_SKY 9
+# define TXT_BRICK	0
+# define TXT_WOOD	1
+# define TXT_STONE	2
+# define TXT_IMG	3
+# define TXT_VENT_1	4
+# define TXT_VENT_2	5
+# define TXT_FLOOR	6
+# define TXT_LAMP	10
+# define TXT_BOX	11
+# define TXT_HEALTH	12
+# define TXT_SKY	20
 
 typedef struct	s_v2
 {
@@ -110,6 +112,9 @@ typedef struct	s_wf
 	float	time;
 	int		anim_frame;
 	float	flash;
+	int		fps;
+	int		score;
+	int		score_max;
 }				t_wf;
 
 typedef struct	s_obj

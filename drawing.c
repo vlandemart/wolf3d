@@ -14,9 +14,10 @@
 
 void	render(t_wf *wf)
 {
-	ft_memset(wf->sdl->pix, 0, wf->width * wf->height * sizeof(Uint32));
-	ft_memset(wf->zbuf, 0, wf->width * wf->height * sizeof(Uint32));
+	bzero(wf->sdl->pix, wf->width * wf->height * sizeof(Uint32));
+	bzero(wf->zbuf, wf->width * wf->height * sizeof(Uint32));
 	movement(wf);
+	draw_sky(wf);
 	draw_walls(wf);
 	draw_ceilfloor(wf);
 	draw_objects(wf);

@@ -34,9 +34,9 @@ double	clamp(double a, double mi, double ma)
 
 double	wrap(double a, double wr)
 {
-	if (a > 0)
+	if (a < 0)
 		return (a + wr);
-	if (a > wr - 1)
+	if (a >= wr)
 		return (a - wr);
 	return (a);
 }

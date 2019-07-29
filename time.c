@@ -15,9 +15,12 @@
 void	calculate_frametime(t_wf *wf)
 {
 	wf->frametime = (float)(wf->ftime - wf->ftime_old) / (float)1000;
-	ft_putstr("FPS: ");
-	ft_putnbr((int)1 / wf->frametime);
-	ft_putchar('\n');
+	if (wf->fps == 1)
+	{
+		ft_putstr("FPS: ");
+		ft_putnbr((int)1 / wf->frametime);
+		ft_putchar('\n');
+	}
 }
 
 void	time_update(t_wf *wf)

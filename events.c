@@ -26,6 +26,8 @@ void	check_keys(t_wf *wf, SDL_Event evt, int key)
 		wf->strafel = key;
 	if (SDLK_d == evt.key.keysym.sym)
 		wf->strafer = key;
+	if (SDLK_f == evt.key.keysym.sym)
+		wf->fps = -wf->fps;
 }
 
 void	handle_events(t_wf *wf)
@@ -46,6 +48,7 @@ void	handle_events(t_wf *wf)
 
 int		cycle(t_wf *wf)
 {
+	wf->fps = -1;
 	while (1)
 	{
 		wf->ftime_old = wf->ftime;

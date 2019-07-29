@@ -89,11 +89,10 @@ void	draw_walls(t_wf *wf)
 	t_ray	r;
 
 	r = new_ray(wf->pl->angle + wf->pl->fov / 2, 0, new_v2(0, 0), 0);
-	if (r.angle >= 360)
-		r.angle -= 360;
 	i = -1;
 	while (++i < wf->width)
 	{
+		wrap(r.angle, 360);
 		if (raycast(wf, &r, 1))
 		{
 			*(r.dist) = *(r.dist) * cos(degtorad(r.angle - wf->pl->angle));
@@ -106,8 +105,6 @@ void	draw_walls(t_wf *wf)
 			wf->ceil[i] = wf->height / 2;
 		}
 		r.angle -= wf->angw;
-		if (r.angle < 0)
-			r.angle += 360;
 	}
 	del_ray(&r);
 }
