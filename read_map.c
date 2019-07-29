@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:33:23 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 23:40:06 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/29 21:34:44 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,8 @@ int		*read_texture(t_wf *wf, char *file_name)
 	}
 	malloc_check(wf, texture = (int*)malloc(sizeof(int) * 32 * 32));
 	txt_read(str, texture, tmp);
+	free(str);
+	free(tmp);
 	ft_putstr(file_name);
 	ft_putendl(" was loaded.");
 	return (texture);

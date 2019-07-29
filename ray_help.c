@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 23:44:02 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/29 00:22:15 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/29 21:19:36 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,4 +56,15 @@ void	del_ray(t_ray *r)
 	free(r->dist);
 	free(r->side);
 	free(r->hit_pos);
+}
+
+int		get_map(t_wf *wf, int x, int y)
+{
+	if (x >= 0 && y >= 0 && x < wf->map_size && y < wf->map_size)
+		return (wf->map[x][y]);
+	ft_putnbr(x);
+	ft_putchar('\n');
+	ft_putnbr(y);
+	ft_putendl(" is out of bounds");
+	return (-1);
 }

@@ -6,22 +6,11 @@
 /*   By: njacobso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/03 15:17:55 by njacobso          #+#    #+#             */
-/*   Updated: 2019/07/29 00:28:39 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/29 19:17:57 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
-
-int		get_map(t_wf *data, int x, int y)
-{
-	if (x >= 0 && y >= 0 && x < data->map_size && y < data->map_size)
-		return (data->map[x][y]);
-	ft_putnbr(x);
-	ft_putchar('\n');
-	ft_putnbr(y);
-	ft_putendl(" is out of bounds");
-	return (-1);
-}
 
 void	draw_sky(t_wf *wf)
 {
@@ -109,33 +98,30 @@ void	draw_walls(t_wf *wf)
 	del_ray(&r);
 }
 
-void	draw_object(t_wf *wf, t_obj obj, int x, int dist, float size)
+void	draw_object(t_wf *wf, t_obj obj, t_objdraw draw)
 {
 	int		i;
 	int		j;
-	int		ex;
-	int		ey;
-	int		y = (wf->height - 32 * size) / 2;
 	t_pix	pix;
 
-	x -= 16 * size;
-	ex = x + 32 * size;
-	ey = y + 32 * size;
-	i = y;
-	while (i < ey && i < wf->height)
+	draw.y = (wf->height - 32 * draw.size) / 2;
+	draw.x -= 16 * draw.size;
+	draw.ex = draw.x + 32 * draw.size;
+	draw.ey = draw.y + 32 * draw.size;
+	i = draw.y;
+	while (i < draw.ey && i < wf->height)
 	{
-		j = x;
-		while (j < ex)
+		j = draw.x - 1;
+		while (++j < draw.ex)
 		{
 			if (j < wf->width && j > 0)
 			{
-				int a = (j - x) / size;
-				int b = (i - y) / size;
-				pix = new_pix(j + wf->width * i, dist, 1, 1);
-				pix.color = get_tx(wf, obj.tx, a, b);
+				draw.a = (j - draw.x) / draw.size;
+				draw.b = (i - draw.y) / draw.size;
+				pix = new_pix(j + wf->width * i, draw.dist, 1, 1);
+				pix.color = get_tx(wf, obj.tx, draw.a, draw.b);
 				put_pixel(wf, pix);
 			}
-			j++;
 		}
 		i++;
 	}
@@ -145,33 +131,18 @@ void	draw_objects(t_wf *wf)
 {
 	t_list	*objs;
 	t_obj	*obj;
+	t_v2	d;
+	float	dist;
 
 	objs = wf->objects;
 	while (objs != NULL)
 	{
 		obj = (t_obj*)(objs->content);
-
-		float dx = obj->pos_real.x - wf->pl->pos.x;
-		float dy = obj->pos_real.y - wf->pl->pos.y;
-		float dist = sqrt(dx * dx + dy * dy);
-
+		d.x = obj->pos_real.x - wf->pl->pos.x;
+		d.y = obj->pos_real.y - wf->pl->pos.y;
+		dist = sqrt(d.x * d.x + d.y * d.y);
 		if (dist < wf->light_distance)
-		{
-			float angle = atan2(dx, dy) - degtorad(wf->pl->angle);
-			if (angle < -M_PI)
-				angle += 2.0 * M_PI;
-			if (angle > M_PI)
-				angle -= 2.0 * M_PI;
-			angle -= M_PI / 2;
-
-			if (fabs(radtodeg(angle)) <= (wf->pl->fov / 2 + 10) && obj->enabled)
-			{
-				int x = wf->width / 2 - tan(angle) * wf->dist;
-				float size = (float)wf->dist / (cos(angle) * dist);
-				draw_object(wf, *obj, x, dist, size);
-			}
-		}
-
+			check_sprite(wf, obj, get_angle(wf, d), dist);
 		objs = objs->next;
 	}
 }

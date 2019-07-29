@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 20:51:26 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 22:04:50 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/29 19:19:04 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,14 +83,6 @@ void	draw_ceilfloor(t_wf *wf)
 	i = 0;
 	while (i < wf->width)
 	{
-		j = 0;
-		/*
-		while (j < wf->ceil[i])
-		{
-			check_ceiling(wf, i, j, omega);
-			j++;
-		}
-		*/
 		j = wf->floor[i];
 		while (j < wf->height)
 		{

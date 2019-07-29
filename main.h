@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/29 00:25:16 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/29 19:21:30 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 # include <fcntl.h>
 # include "lib/libft/libft.h"
 # define SQLEN 64
-//Texture defines
 # define TXT_BRICK	0
 # define TXT_WOOD	1
 # define TXT_STONE	2
@@ -37,6 +36,18 @@ typedef struct	s_v2
 	float		x;
 	float		y;
 }				t_v2;
+
+typedef struct	s_objdraw
+{
+	int			x;
+	int			dist;
+	float		size;
+	int			ex;
+	int			ey;
+	int			a;
+	int			b;
+	int			y;
+}				t_objdraw;
 
 typedef struct	s_wall
 {
@@ -97,10 +108,10 @@ typedef struct	s_wf
 	int		lov;
 	double	angw;
 	int		**textures;
-	int     left;
-	int     right;
-	int     up;
-	int     down;
+	int		left;
+	int		right;
+	int		up;
+	int		down;
 	int		strafer;
 	int		strafel;
 	float	light_distance;
@@ -128,11 +139,6 @@ typedef struct	s_obj
 	int		instance_index;
 	int		enabled;
 }				t_obj;
-
-
-/*
-**	Prototypes
-*/
 
 double			degtorad(double deg);
 double			radtodeg(double rad);
@@ -188,6 +194,11 @@ float			find_step(float *dist);
 int				find_side(int *side, t_v2 *hit_pos, t_v2 dir, int map_obj);
 t_ray			new_ray(float angle, float dist, t_v2 hit_pos, int side);
 void			del_ray(t_ray *r);
+int				get_map(t_wf *wf, int x, int y);
+void			check_sprite(t_wf *wf, t_obj *obj, float angle, float dist);
+float			get_angle(t_wf *wf, t_v2 d);
+t_objdraw		new_objdraw(int x, int dist, float size);
+void			draw_object(t_wf *wf, t_obj obj, t_objdraw draw);
 
 void			init_textures(t_wf *wf);
 int				get_tx(t_wf *wf, int tx_index, int x, int y);
