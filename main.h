@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/30 08:05:00 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 09:39:01 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,7 @@ typedef struct	s_wf
 	int			down;
 	int			strafer;
 	int			strafel;
+	int			shift;
 	float		light_distance;
 	float		*zbuf;
 	t_list		*objects;

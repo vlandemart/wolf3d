@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 21:12:18 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/28 21:37:56 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 09:43:37 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,12 @@ void	move_up(t_wf *wf)
 
 	x = wf->pl->pos.x;
 	y = wf->pl->pos.y;
-	x += cos(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+	x += cos(degtorad(wf->pl->angle)) *
+		(wf->pl->speed + wf->shift * 50) * wf->frametime;
 	if (!check_collision(wf, new_v2(x, y)))
 		x = wf->pl->pos.x;
-	y -= sin(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+	y -= sin(degtorad(wf->pl->angle)) *
+		(wf->pl->speed + wf->shift * 50) * wf->frametime;
 	if (!check_collision(wf, new_v2(x, y)))
 		y = wf->pl->pos.y;
 	wf->pl->pos.x = x;
@@ -36,10 +38,12 @@ void	move_down(t_wf *wf)
 
 	x = wf->pl->pos.x;
 	y = wf->pl->pos.y;
-	x -= cos(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+	x -= cos(degtorad(wf->pl->angle)) *
+		(wf->pl->speed + wf->shift * 50) * wf->frametime;
 	if (!check_collision(wf, new_v2(x, y)))
 		x = wf->pl->pos.x;
-	y += sin(degtorad(wf->pl->angle)) * wf->pl->speed * wf->frametime;
+	y += sin(degtorad(wf->pl->angle)) *
+		(wf->pl->speed + wf->shift * 50) * wf->frametime;
 	if (!check_collision(wf, new_v2(x, y)))
 		y = wf->pl->pos.y;
 	wf->pl->pos.x = x;
@@ -53,10 +57,12 @@ void	strafe_right(t_wf *wf)
 
 	x = wf->pl->pos.x;
 	y = wf->pl->pos.y;
-	x += cos(degtorad(wf->pl->angle - 90)) * wf->pl->speed * wf->frametime;
+	x += cos(degtorad(wf->pl->angle - 90)) *
+		(wf->pl->speed + wf->shift * 50) * wf->frametime;
 	if (!check_collision(wf, new_v2(x, y)))
 		x = wf->pl->pos.x;
-	y -= sin(degtorad(wf->pl->angle - 90)) * wf->pl->speed * wf->frametime;
+	y -= sin(degtorad(wf->pl->angle - 90)) *
+		(wf->pl->speed + wf->shift * 50) * wf->frametime;
 	if (!check_collision(wf, new_v2(x, y)))
 		y = wf->pl->pos.y;
 	wf->pl->pos.x = x;
@@ -70,10 +76,12 @@ void	strafe_left(t_wf *wf)
 
 	x = wf->pl->pos.x;
 	y = wf->pl->pos.y;
-	x += cos(degtorad(wf->pl->angle + 90)) * wf->pl->speed * wf->frametime;
+	x += cos(degtorad(wf->pl->angle + 90)) *
+		(wf->pl->speed + wf->shift * 50) * wf->frametime;
 	if (!check_collision(wf, new_v2(x, y)))
 		x = wf->pl->pos.x;
-	y -= sin(degtorad(wf->pl->angle + 90)) * wf->pl->speed * wf->frametime;
+	y -= sin(degtorad(wf->pl->angle + 90)) *
+		(wf->pl->speed + wf->shift * 50) * wf->frametime;
 	if (!check_collision(wf, new_v2(x, y)))
 		y = wf->pl->pos.y;
 	wf->pl->pos.x = x;

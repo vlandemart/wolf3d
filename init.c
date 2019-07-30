@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 20:10:55 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/30 08:39:57 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 09:42:54 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ void	init_player(t_wf *wf)
 	wf->pl->fov = 60;
 	wf->pl->turn = 90;
 	wf->pl->speed = 90;
-	wf->pl->speed = 90;
 	wf->pl->height = wf->height / 2;
 	wf->lov = 4 * SQLEN;
 	wf->dist = ((double)wf->width / 2.0) / tan(degtorad(wf->pl->fov) / 2.0);
@@ -62,6 +61,7 @@ void	init_const(t_wf *wf)
 	wf->down = 0;
 	wf->strafel = 0;
 	wf->strafer = 0;
+	wf->shift = 0;
 	wf->m = 1;
 }
 

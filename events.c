@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 21:23:00 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/30 08:13:22 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 09:42:25 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ void	check_keys(t_wf *wf, SDL_Event evt, int key)
 		wf->strafel = key;
 	else if (SDLK_d == evt.key.keysym.sym)
 		wf->strafer = key;
+	else if (SDLK_LSHIFT == evt.key.keysym.sym)
+		wf->shift = key;
 	else if (SDLK_f == evt.key.keysym.sym)
 		wf->fps = -wf->fps;
 	else if (SDLK_m == evt.key.keysym.sym && evt.type == SDL_KEYDOWN)
