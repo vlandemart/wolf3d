@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 21:23:00 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/30 08:09:39 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 08:13:22 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,7 @@ void	check_keys(t_wf *wf, SDL_Event evt, int key)
 	else if (SDLK_f == evt.key.keysym.sym)
 		wf->fps = -wf->fps;
 	else if (SDLK_m == evt.key.keysym.sym && evt.type == SDL_KEYDOWN)
-	{
 		wf->m = (wf->m ? 0 : 1);
-		printf("wf->m %d\n", wf->m);
-	}
 }
 
 void	handle_events(t_wf *wf)
