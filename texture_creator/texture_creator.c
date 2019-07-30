@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/29 19:23:12 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/29 20:53:46 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 03:22:55 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,18 +95,16 @@ int			change_color(t_data *data, int wheel)
 int			main(int ac, char **av)
 {
 	t_data	*data;
-	char	*usage;
 
 	data = init_sdl();
-	usage = "======\nUsage:\n\
+	ft_putendl("======\nUsage:\n\
 			Hold 1-3 and scroll mouse to modify rgb channels\n\
 			Hold 4 and scroll mouse to darken/lighten current color\n\
 			LMB presses selected color, RMB copies color under cursor\n\
 			Press Space to renew image's grid\n\
 			Press L or KP_Plus to export image.\n\
 			Image name is set in opening argument\n\
-			If image with that name exists, opens it instead\n======";
-	ft_putendl(usage);
+			If image with that name exists, opens it instead\n======");
 	if (ac == 2)
 	{
 		data->file_name = av[1];

@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/29 20:30:16 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/29 20:53:05 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 03:03:44 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ int		export_image(t_data *data)
 		{
 			str = ft_strjoinc(str, ft_itoa(data->image[i][j]));
 			str = ft_strjoinc(str, " ");
+			printf("%s\n", str);
 		}
 		str = ft_strjoinc(str, "\n");
 	}
@@ -45,7 +46,10 @@ char	*read_from(int fd)
 {
 	char	*str;
 	char	*tmp;
+	int		i;
 
+	i = 0;
+	str = ft_strnew(0);
 	while (get_next_line(fd, &tmp) > 0)
 	{
 		str = ft_strjoinc(str, tmp);
@@ -57,11 +61,22 @@ char	*read_from(int fd)
 
 char	*fill_str(char *str, int *n)
 {
-	char *ret;
+	char	*ret;
+	int		i;
+	int		j;
 
-	ret = ft_strnew(0);
-	while (isdigit(str[*n]))
-		ret = ft_strjoinc(ret, &str[*n++]);
+	i = 0;
+	while (isdigit(str[*n + i]))
+		i++;
+	ret = ft_strnew(i);
+	j = 0;
+	while (j < i)
+	{
+		ret[j] = str[*n + j];
+		j++;
+	}
+	ret[j] = '\0';
+	*n += j;
 	return (ret);
 }
 
@@ -78,6 +93,7 @@ int		open_cycle(t_data *data, int *i, int *n, char *str)
 		set_pixel(data, j * data->pixel_size, *i * data->pixel_size);
 		ft_strdel(&tmp);
 		*n = *n + 1;
+		j++;
 	}
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/29 19:23:34 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/29 21:01:48 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 03:21:50 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,5 +50,6 @@ int				set_pixel(t_data *data, int x, int y);
 int				export_image(t_data *data);
 int				change_color(t_data *data, int y);
 int				open_file(t_data *data);
+void			reset(t_data *data);
 double			clamp(double a, double mi, double ma);
 #endif
