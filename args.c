@@ -17,7 +17,10 @@ void	init_args(t_wf *wf, int ac, char **av)
 	if (ac == 2)
 	{
 		if (read_map(wf, av[1]) != 1)
-			exit(close_app_s(wf, "Error reading map!"));
+		{
+			ft_putendl("Error reading map!");
+			exit(0);
+		}
 	}
 	else
 	{

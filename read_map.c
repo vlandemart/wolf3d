@@ -123,9 +123,13 @@ int		*read_texture(t_wf *wf, char *file_name)
 	char	*str;
 	int		*texture;
 
+	malloc_check(wf, texture = (int*)malloc(sizeof(int) * 32 * 32));
 	n = open(file_name, O_RDONLY);
 	if (n <= 0)
-		return (NULL);
+	{
+		bzero(texture, sizeof(int) * 32 * 32);
+		return (texture);
+	}
 	str = ft_strnew(0);
 	while (get_next_line(n, &tmp) > 0)
 	{
@@ -133,7 +137,6 @@ int		*read_texture(t_wf *wf, char *file_name)
 		str = ft_strjoinc(str, "\n");
 		ft_strdel(&tmp);
 	}
-	malloc_check(wf, texture = (int*)malloc(sizeof(int) * 32 * 32));
 	txt_read(str, texture, tmp);
 	free(str);
 	free(tmp);
