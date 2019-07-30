@@ -28,7 +28,7 @@ t_data		*init_sdl(void)
 		exit_msg(data, "SDL can't create renderer.");
 	data->texture = SDL_CreateTexture(data->rend, SDL_PIXELFORMAT_ARGB8888,
 			SDL_TEXTUREACCESS_STREAMING, SCREEN_W, SCREEN_H);
-	check_malloc(data->pixel = malloc(SCREEN_H * SCREEN_H * sizeof(int)));
+	check_malloc(data->pixel = malloc(SCREEN_H * SCREEN_W * sizeof(int)));
 	data->button_held = 0;
 	data->pixel_size = 20;
 	data->selected_color = 0xFF0000;
@@ -92,11 +92,30 @@ int			change_color(t_data *data, int wheel)
 	return (1);
 }
 
+int			clear_file(t_data *data)
+{
+	int i;
+
+	i = -1;
+	while (++i < IMAGE_SIZE)
+		ft_bzero(data->image[i], sizeof(int) * IMAGE_SIZE);
+	bzero(data->pixel, SCREEN_H * SCREEN_W * sizeof(int));
+	return (1);
+}
+
 int			main(int ac, char **av)
 {
 	t_data	*data;
 
 	data = init_sdl();
+	if (ac == 2)
+	{
+		data->file_name = av[1];
+		if (!open_file(data))
+			clear_file(data);
+	}
+	else
+		clear_file(data);
 	ft_putendl("======\nUsage:\n\
 			Hold 1-3 and scroll mouse to modify rgb channels\n\
 			Hold 4 and scroll mouse to darken/lighten current color\n\
@@ -105,14 +124,6 @@ int			main(int ac, char **av)
 			Press L or KP_Plus to export image.\n\
 			Image name is set in opening argument\n\
 			If image with that name exists, opens it instead\n======");
-	if (ac == 2)
-	{
-		data->file_name = av[1];
-		if (!open_file(data))
-			ft_memset(data->pixel, 0x000000, SCREEN_W * SCREEN_H * sizeof(int));
-	}
-	else
-		ft_memset(data->pixel, 0x000000, SCREEN_W * SCREEN_H * sizeof(int));
 	txt_update(data);
 	return (1);
 }

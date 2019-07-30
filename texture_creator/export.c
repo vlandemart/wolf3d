@@ -31,7 +31,6 @@ int		export_image(t_data *data)
 		{
 			str = ft_strjoinc(str, ft_itoa(data->image[i][j]));
 			str = ft_strjoinc(str, " ");
-			printf("%s\n", str);
 		}
 		str = ft_strjoinc(str, "\n");
 	}

@@ -14,7 +14,10 @@
 
 int		txt_render(t_data *data)
 {
-	SDL_UpdateTexture(data->texture, NULL, data->pixel, SCREEN_W * 4);
+	int size;
+
+	size = SCREEN_W * sizeof(int);
+	SDL_UpdateTexture(data->texture, NULL, data->pixel, size);
 	SDL_RenderClear(data->rend);
 	SDL_RenderCopy(data->rend, data->texture, NULL, NULL);
 	SDL_RenderPresent(data->rend);
