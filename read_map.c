@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 19:33:23 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/30 02:16:27 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 07:46:17 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,8 @@ int		read_map(t_wf *data, char *file_name)
 	map = from_file(fd, str, &map_size, map);
 	ft_putendl("Read map:");
 	ft_putendl(map);
+	if (!ft_strlen(map))
+		simclose("Wrong size of file, needed at least 1 valid cell.");
 	ft_putendl("Binding map...");
 	data->map_size = (int)max(map_size.x, map_size.y);
 	bind_map(data, map);

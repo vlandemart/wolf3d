@@ -6,13 +6,14 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/28 15:39:50 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/30 00:10:20 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 08:05:00 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MAIN_H
 # define MAIN_H
 # include "SDL2/SDL.h"
+# include "SDL_mixer.h"
 # include <math.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -96,36 +97,38 @@ typedef struct	s_sdl
 
 typedef struct	s_wf
 {
-	t_sdl	*sdl;
-	t_pl	*pl;
-	int		width;
-	int		height;
-	int		**map;
-	int		map_size;
-	int		*floor;
-	int		*ceil;
-	int		dist;
-	int		lov;
-	double	angw;
-	int		**textures;
-	int		left;
-	int		right;
-	int		up;
-	int		down;
-	int		strafer;
-	int		strafel;
-	float	light_distance;
-	float	*zbuf;
-	t_list	*objects;
-	float	ftime;
-	float	ftime_old;
-	float	frametime;
-	float	time;
-	int		anim_frame;
-	float	flash;
-	int		fps;
-	int		score;
-	int		score_max;
+	t_sdl		*sdl;
+	t_pl		*pl;
+	Mix_Music	*music;
+	int			width;
+	int			height;
+	int			**map;
+	int			map_size;
+	int			*floor;
+	int			*ceil;
+	int			dist;
+	int			lov;
+	double		angw;
+	int			**textures;
+	int			left;
+	int			right;
+	int			up;
+	int			down;
+	int			strafer;
+	int			strafel;
+	float		light_distance;
+	float		*zbuf;
+	t_list		*objects;
+	float		ftime;
+	float		ftime_old;
+	float		frametime;
+	float		time;
+	int			anim_frame;
+	float		flash;
+	int			fps;
+	int			score;
+	int			score_max;
+	int			m;
 }				t_wf;
 
 typedef struct	s_obj
@@ -216,5 +219,6 @@ void			calculate_frametime(t_wf *wf);
 void			time_update(t_wf *wf);
 void			malloc_check(t_wf *wf, void *addr);
 int				close_app_s(t_wf *wf, char *str);
+void			simclose(const char *str);
 
 #endif

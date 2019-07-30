@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 20:10:55 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/30 00:12:32 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 08:11:33 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,17 +61,26 @@ void	init_const(t_wf *wf)
 	wf->down = 0;
 	wf->strafel = 0;
 	wf->strafer = 0;
+	wf->m = 1;
 }
 
 void	prepare_window(t_wf *wf)
 {
-	SDL_Init(SDL_INIT_EVERYTHING);
-	wf->sdl->win = SDL_CreateWindow("Wolf3D", SDL_WINDOWPOS_UNDEFINED,
-			SDL_WINDOWPOS_UNDEFINED, wf->width, wf->height, 0);
-	wf->sdl->ren = SDL_CreateRenderer(wf->sdl->win, -1, 0);
-	wf->sdl->txt = SDL_CreateTexture(wf->sdl->ren,
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
+		simclose(SDL_GetError());
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048))
+		simclose(SDL_GetError());
+	if (!(wf->music = Mix_LoadMUS("music.mp3")))
+		simclose(SDL_GetError());
+	if (!(wf->sdl->win = SDL_CreateWindow("Wolf3D", SDL_WINDOWPOS_UNDEFINED,
+			SDL_WINDOWPOS_UNDEFINED, wf->width, wf->height, 0)))
+		simclose(SDL_GetError());
+	if (!(wf->sdl->ren = SDL_CreateRenderer(wf->sdl->win, -1, 0)))
+		simclose(SDL_GetError());
+	if (!(wf->sdl->txt = SDL_CreateTexture(wf->sdl->ren,
 			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC,
-			wf->width, wf->height);
+			wf->width, wf->height)))
+		simclose(SDL_GetError());
 	malloc_check(wf, wf->sdl->pix = (Uint32*)malloc(sizeof(Uint32) *
 				(wf->width * wf->height)));
 	update(wf, 1);

@@ -6,14 +6,16 @@
 #    By: njacobso <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/04/19 16:28:47 by njacobso          #+#    #+#              #
-#    Updated: 2019/07/30 00:35:23 by ydavis           ###   ########.fr        #
+#    Updated: 2019/07/30 07:34:07 by ydavis           ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
 CC			= gcc
 NAME		= wolf3d
 CFLAGS		= -o3 -Wall -Werror -Wextra -F ~/Library/Frameworks -framework SDL2\
-			  -I ~/Library/Frameworks/SDL2.framework/Versions/A/Headers
+			  -I ~/Library/Frameworks/SDL2.framework/Versions/A/Headers\
+			  -framework SDL2_mixer -I\
+			  ~/Library/Frameworks/SDL2_mixer.framework/Versions/A/Headers
 INCLUDES	= include
 SRC			= args.c collisions.c defines.c degrad.c drawing.c events.c\
 			  floorceil.c init.c main.c map_help.c movement.c objects.c\
@@ -28,13 +30,14 @@ LIBFT		= lib/libft
 all: $(NAME)
 
 $(NAME):	$(LIBFT) $(SRC) $(HDR)
-	@cp -r SDL2.framework ~/Library/Frameworks/
+	@cp -rf SDL2.framework ~/Library/Frameworks/
+	@cp -rf SDL2_mixer.framework ~/Library/Frameworks/
 	@make --directory=$(LIBFT)
 	@$(CC) $(CFLAGS) $(SRC) lib/libft/libft.a -o $(NAME)
 
 clean:
 	@rm -rf $(OBJ)
-	@rm -rf ~/Library/Frameworks/SDL.framework
+	@rm -rf ~/Library/Frameworks/SDL*
 	@make --directory=$(LIBFT) clean
 
 fclean: clean
