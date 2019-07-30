@@ -6,7 +6,7 @@
 /*   By: ydavis <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/28 20:10:55 by ydavis            #+#    #+#             */
-/*   Updated: 2019/07/30 08:11:33 by ydavis           ###   ########.fr       */
+/*   Updated: 2019/07/30 08:39:57 by ydavis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ void	init_player(t_wf *wf)
 
 void	init_const(t_wf *wf)
 {
+	wf->objects = NULL;
 	wf->width = 1024;
 	wf->height = 768;
 	wf->left = 0;
